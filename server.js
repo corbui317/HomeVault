@@ -7,6 +7,16 @@ const connectDB = require('./backend/config/db');
 const app = express();
 connectDB();
 
+async function ensureAdmin() {
+  const existing = await User.findOne({ username: 'admin' });
+  if (!existing) {
+    const hashed = await bcrypt.hash('password', 10);
+    await User.create({ username: 'admin', password: hashed });
+    console.log('Default admin user created');
+  }
+}
+ensureAdmin();
+
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
