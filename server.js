@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./backend/config/db');
+const bcrypt = require('bcryptjs');
+const User = require('./backend/models/User');
 
 const app = express();
 connectDB();

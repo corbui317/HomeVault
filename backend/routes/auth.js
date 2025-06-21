@@ -1,24 +1,20 @@
+// backend/routes/auth.js
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const user = await User.create({ username, password: hashed });
-  res.json({ user });
-});
+const SECRET = process.env.JWT_SECRET || 'secret';
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const user = await User.findOne({ username });
-  if (!user || !(await bcrypt.compare(password, user.password)))
-    return res.status(400).json({ msg: 'Invalid credentials' });
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-  res.json({ token });
+  if (username === 'admin' && password === 'password') {
+    const token = jwt.sign({ username }, SECRET, { expiresIn: '1h' });
+    return res.json({ token });
+  }
+
+  return res.status(401).json({ message: 'Invalid credentials' });
 });
 
 module.exports = router;
