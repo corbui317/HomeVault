@@ -1,0 +1,25 @@
+.app {
+  padding: 20px;
+}
+.login {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  margin: 100px auto;
+}
+.login input {
+  margin-bottom: 10px;
+}
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+}
+.item {
+  margin: 10px;
+  text-align: center;
+}
+.item img {
+  max-width: 200px;
+  height: auto;
+  display: block;
+}
