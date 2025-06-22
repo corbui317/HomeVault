@@ -2,24 +2,44 @@
 
 This project includes a Node/Express backend and a React frontend.
 
+## Prerequisites
+
+* [Node.js](https://nodejs.org/) (v16 or newer)
+* [MongoDB](https://www.mongodb.com/) running locally or in the cloud
+
 ## Setup
 
-Install dependencies for both projects before running anything:
+1. **Clone the repository** and change into the project directory:
 
-```bash
-# Install backend dependencies
-cd backend
-npm install
+   ```bash
+   git clone <repo-url>
+   cd HomeVault
+   ```
+2. **Install root dependencies** (used by the development script and the production server):
 
-# Install frontend dependencies
-cd ../frontend
-npm install
-```
+   ```bash
+   npm install
+   ```
 
-The frontend relies on `react-router-dom`; if this dependency isn't installed you
-will see errors such as "Module not found: Can't resolve 'react-router-dom'" when
-starting the React dev server. Running `npm install` in the `frontend` directory
-will install it along with the other React packages.
+3. **Install backend and frontend dependencies**:
+
+   ```bash
+   cd backend && npm install
+   cd ../frontend && npm install
+   cd ..
+   ```
+
+   The frontend relies on `react-router-dom` and other React packages which will be installed by the command above.
+
+4. **Configure the database and environment variables.** Create a file named `.env` inside the `backend` folder with the following contents (adjust as needed):
+
+   ```
+   MONGO_URI=mongodb://localhost:27017/homevault
+   JWT_SECRET=your_secret_key
+   CLIENT_ORIGIN=http://localhost:3000
+   ```
+
+   Ensure that your MongoDB server is running and reachable via the `MONGO_URI` you provide.
 
 ## Running in development
 
