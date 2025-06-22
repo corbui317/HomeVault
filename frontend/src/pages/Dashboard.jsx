@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,12 +23,12 @@ export default function Dashboard() {
     }
   }
 
-  async function upload(e) {
-    e.preventDefault();
-    if (!file) return;
+  async function upload(selectedFile) {
+    const fileToUpload = selectedFile || file;
+    if (!fileToUpload) return;
     const token = localStorage.getItem("token");
     const formData = new FormData();
-    formData.append("photo", file);
+    formData.append("photo", fileToUpload);
     const res = await fetch("/api/photos/upload", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -38,6 +39,14 @@ export default function Dashboard() {
       await loadFiles();
     }
   }
+
+  function handleFileChange(e) {
+    const selected = e.target.files[0];
+    if (selected) {
+      setFile(selected);
+      upload(selected);
+    }
+  }  
 
   async function remove(name) {
     const token = localStorage.getItem("token");
@@ -60,21 +69,27 @@ export default function Dashboard() {
       <nav className="sidebar">
         <h1>HomeVault</h1>
         <ul>
-          <li>Upload</li>
+          <li>
+            <button type="button" onClick={() => fileInputRef.current.click()}>Upload</button>
+          </li>
           <li>Delete</li>
           <li>Recently Added</li>
           <li>Trash</li>
           <li>Albums</li>
           <li>Favorites</li>
+          <li>
+            <button type="button" onClick={logout}>Sign Out</button>
+          </li>          
         </ul>
       </nav>
       <div className="dashboard-content">
         <h2 className="mb-4">HomeVault Dashboard</h2>
-        <form onSubmit={upload} className="mb-4">
-          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-          <button type="submit" className="ml-2">Upload</button>
-          <button type="button" onClick={logout} className="ml-2">Logout</button>
-        </form>
+        <input
+          ref={fileInputRef}
+          type="file"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
         <div className="gallery-grid">
           {files.filter((f) => f !== ".gitkeep").map((f) => (
             <div key={f} className="photo-item">
