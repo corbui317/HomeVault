@@ -4,8 +4,9 @@ const path = require('path');
 
 // Some environments may accidentally pass a HOST variable to the React
 // development server which causes Webpack to misconfigure allowedHosts.
-// Reset it to a safe default before starting child processes.
-process.env.HOST = 'localhost';
+// In modern versions of Create React App this is handled automatically,
+// so avoid forcing a specific HOST value.
+delete process.env.HOST;
 
 function ensureInstalled(dir) {
   const nodeModules = path.join(__dirname, dir, 'node_modules');
@@ -17,8 +18,7 @@ function ensureInstalled(dir) {
 
 function run(command, args, cwd) {
   const env = { ...process.env };
-  // Ensure the React dev server sees a safe host value
-  env.HOST = 'localhost';
+  // Use the existing environment without forcing HOST
   const proc = spawn(command, args, {
     cwd,
     stdio: 'inherit',
