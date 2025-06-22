@@ -27,7 +27,9 @@ app.use('/api/auth', require('./backend/routes/auth'));
 app.use('/api/photos', require('./backend/routes/photos'));
 
 app.use(express.static(path.join(__dirname, 'frontend', 'build')));
-app.get('*', (req, res) => {
+// Express 5 with path-to-regexp >=8 rejects the bare "*" pattern.
+// Use a catch-all path to serve the React build for any unknown route.
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
 });
 
