@@ -70,3 +70,12 @@ node server.js
 After building, open `http://localhost:5000` to view the login page.
 Use the default credentials **admin/password** to sign in and access the
 dashboard where you can upload and manage photos.
+
+## Troubleshooting
+
+Running `npm run dev` installs missing packages for the frontend and backend
+automatically. If you see warnings about deprecated APIs (such as
+`util._extend`) they originate from underlying libraries and should not prevent
+the development server from starting. To ensure all packages are available,
+run `npm install` in the project root and in each subfolder (`backend` and
+`frontend`) before starting the dev script.

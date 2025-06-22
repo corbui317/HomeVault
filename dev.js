@@ -39,7 +39,9 @@ function run(command, args, cwd) {
   return proc;
 }
 
-// ✅ Match your actual folder structure
+// ✅ Install packages if node_modules folders are missing
+// Include the project root so server dependencies are available
+ensureInstalled('.');
 ensureInstalled('frontend');
 ensureInstalled('backend');
 
