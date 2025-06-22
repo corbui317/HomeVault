@@ -2,39 +2,46 @@ const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Some environments may accidentally pass an empty HOST variable to the React
-// development server which causes Webpack to misconfigure allowedHosts.
-// Ensure the value is set to a safe default before starting child processes.
-process.env.HOST = 'localhost';
+// Clean up HOST: completely remove to avoid React/Webpack Dev Server bug
+delete process.env.HOST;
 
 function ensureInstalled(dir) {
   const nodeModules = path.join(__dirname, dir, 'node_modules');
   if (!fs.existsSync(nodeModules)) {
     console.log(`Installing dependencies for ${dir}...`);
-    spawnSync('npm', ['install'], { cwd: path.join(__dirname, dir), stdio: 'inherit', shell: true });
+    spawnSync('npm', ['install'], {
+      cwd: path.join(__dirname, dir),
+      stdio: 'inherit',
+      shell: true,
+    });
   }
 }
 
 function run(command, args, cwd) {
   const env = { ...process.env };
-  // Pass along the safe HOST value so the React dev server configures correctly
-  env.HOST = process.env.HOST;
+
+  // 🚫 Force HOST to be undefined to avoid React/Webpack allowedHosts bug
+  delete env.HOST;
+
   const proc = spawn(command, args, {
     cwd,
     stdio: 'inherit',
     shell: true,
     env,
   });
+
   proc.on('close', code => {
     if (code !== 0) {
       console.error(`${command} ${args.join(' ')} exited with code ${code}`);
     }
   });
+
   return proc;
 }
 
-ensureInstalled('backend');
+// ✅ Match your actual folder structure
 ensureInstalled('frontend');
+ensureInstalled('backend');
 
 const backend = run('npm', ['start'], 'backend');
 const frontend = run('npm', ['start'], 'frontend');
