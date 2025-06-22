@@ -33,5 +33,18 @@ This works the same on Windows, macOS and Linux and will run
 `npm start` in the `backend` and `frontend` directories
 concurrently.
 
-The root `server.js` can still serve the compiled frontend if you run
-`node server.js` after building the React project.
+The root `server.js` can still serve the compiled frontend if you first build the React project:
+
+```bash
+cd frontend
+npm run build
+cd ..
+```
+
+Then start the server:
+
+```bash
+node server.js
+```
+
+After building, open `http://localhost:5000` to view the login page.
