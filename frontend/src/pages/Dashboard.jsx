@@ -5,7 +5,8 @@ import "../App.css";
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState(null);
-  const fileInputRef = useRef(null);  
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,7 +47,27 @@ export default function Dashboard() {
       setFile(selected);
       upload(selected);
     }
-  }  
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    setDragging(true);
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    setDragging(false);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    setDragging(false);
+    const dropped = e.dataTransfer.files[0];
+    if (dropped) {
+      upload(dropped);
+    }
+  } 
 
   async function remove(name) {
     const token = localStorage.getItem("token");
@@ -82,7 +103,12 @@ export default function Dashboard() {
           </li>          
         </ul>
       </nav>
-      <div className="dashboard-content">
+      <div
+        className={`dashboard-content${dragging ? " dragging" : ""}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <h2 className="mb-4">HomeVault Dashboard</h2>
         <input
           ref={fileInputRef}
