@@ -16,7 +16,16 @@ function ensureInstalled(dir) {
 }
 
 function run(command, args, cwd) {
-  const proc = spawn(command, args, { cwd, stdio: 'inherit', shell: true });
+  const env = { ...process.env };
+  // Ensure HOST does not leak into child processes which would misconfigure
+  // the React dev server's allowedHosts option.
+  delete env.HOST;
+  const proc = spawn(command, args, {
+    cwd,
+    stdio: 'inherit',
+    shell: true,
+    env,
+  });
   proc.on('close', code => {
     if (code !== 0) {
       console.error(`${command} ${args.join(' ')} exited with code ${code}`);
