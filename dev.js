@@ -2,6 +2,11 @@ const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Some environments may accidentally pass a HOST variable to the React
+// development server which causes Webpack to misconfigure allowedHosts.
+// Removing it ensures the server starts with default settings.
+delete process.env.HOST;
+
 function ensureInstalled(dir) {
   const nodeModules = path.join(__dirname, dir, 'node_modules');
   if (!fs.existsSync(nodeModules)) {
