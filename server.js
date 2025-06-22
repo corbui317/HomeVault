@@ -19,7 +19,10 @@ async function ensureAdmin() {
 }
 ensureAdmin();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

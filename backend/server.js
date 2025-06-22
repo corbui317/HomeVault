@@ -8,7 +8,10 @@ const authRoutes = require('./routes/auth');
 connectDB();
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Static uploads folder
