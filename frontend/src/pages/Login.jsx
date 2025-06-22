@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../App.css";
+import "../Login.css";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -53,8 +53,15 @@ export default function Login() {
       setRegMessage("Registration failed");
     }
   }
+const [error, setError] = useState(false);
+
   async function handleLogin(e) {
     e.preventDefault();
+    if (!username) {
+      setError(true);
+      return;
+    }
+    setError(false);    
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -73,25 +80,41 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <div className="logo">HomeVault</div>
-      <form className="login" onSubmit={handleLogin}>
-        <h2>Login</h2>
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-        />
-        <button type="submit">Login</button>
-        <button type="button" onClick={() => setShowRegister(true)}>
-          Register
-        </button>        
-      </form>
+      <div className="login-box">
+        <h1 className="title">Sign in</h1>
+        <p className="subtitle">to continue to HomeVault</p>
+        <form className="login-form" onSubmit={handleLogin}>
+          <input
+            className={error ? "error" : ""}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Email or phone"
+          />
+          {error && (
+            <div className="error-msg">Enter an email or phone number</div>
+          )}
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <div className="link" style={{ marginBottom: "16px" }}>Forgot email?</div>
+          <div className="actions">
+            <button
+              type="button"
+              className="link"
+              onClick={() => setShowRegister(true)}
+            >
+              Create account
+            </button>
+            <button type="submit" className="next-btn">
+              Next
+            </button>
+          </div>
+        </form>
+        <div className="language-selector">English (United States)</div>
+      </div>
       
       {showRegister && (
         <div className="register-modal">
