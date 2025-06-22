@@ -56,23 +56,34 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard p-4">
-      <h1 className="text-3xl mb-4">HomeVault Dashboard</h1>
-      <form onSubmit={upload} className="mb-4">
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button type="submit" className="ml-2">Upload</button>
-        <button type="button" onClick={logout} className="ml-2">Logout</button>
-      </form>
-      <ul>
-        {files.map((f) => (
-          <li key={f}>
-            <a href={`/uploads/${f}`} target="_blank" rel="noopener noreferrer" className="mr-2 underline text-blue-500">
-              {f}
-            </a>
-            <button onClick={() => remove(f)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+    <div className="dashboard-container">
+      <nav className="sidebar">
+        <h1>HomeVault</h1>
+        <ul>
+          <li>Upload</li>
+          <li>Delete</li>
+          <li>Recently Added</li>
+          <li>Trash</li>
+          <li>Albums</li>
+          <li>Favorites</li>
+        </ul>
+      </nav>
+      <div className="dashboard-content">
+        <h2 className="mb-4">HomeVault Dashboard</h2>
+        <form onSubmit={upload} className="mb-4">
+          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+          <button type="submit" className="ml-2">Upload</button>
+          <button type="button" onClick={logout} className="ml-2">Logout</button>
+        </form>
+        <div className="gallery-grid">
+          {files.filter((f) => f !== ".gitkeep").map((f) => (
+            <div key={f} className="photo-item">
+              <img src={`/uploads/${f}`} alt={f} />
+              <button onClick={() => remove(f)}>Delete</button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

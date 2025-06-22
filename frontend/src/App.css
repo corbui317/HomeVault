@@ -4,8 +4,12 @@
 .login {
   display: flex;
   flex-direction: column;
-  width: 200px;
-  margin: 100px auto;
+  width: 300px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
 .login input {
   margin-bottom: 10px;
@@ -38,4 +42,57 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
+}
+
+/* New styles */
+.dashboard-container {
+  display: flex;
+}
+
+.sidebar {
+  width: 200px;
+  min-height: 100vh;
+  background: #f0f0f0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebar h1 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.gallery-grid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.photo-item {
+  position: relative;
+  text-align: center;
+}
+
+.photo-item button {
+  margin-top: 5px;  
 }
