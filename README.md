@@ -23,19 +23,15 @@ will install it along with the other React packages.
 
 ## Running in development
 
-Start the backend API:
+From the project root you can start both the backend and the React
+frontend with a single command:
 
 ```bash
-cd backend
-npm start
+npm run dev
 ```
+This works the same on Windows, macOS and Linux and will run
+`npm start` in the `backend` and `frontend` directories
+concurrently.
 
-In another terminal start the React frontend:
-
-```bash
-cd frontend
-npm start
-```
-
-The root `server.js` can also serve the compiled frontend if you run
+The root `server.js` can still serve the compiled frontend if you run
 `node server.js` after building the React project.
