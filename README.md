@@ -48,3 +48,5 @@ node server.js
 ```
 
 After building, open `http://localhost:5000` to view the login page.
+Use the default credentials **admin/password** to sign in and access the
+dashboard where you can upload and manage photos.

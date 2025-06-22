@@ -22,4 +22,20 @@
   max-width: 200px;
   height: auto;
   display: block;
+  }
+
+.dashboard {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.dashboard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dashboard li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
 }
