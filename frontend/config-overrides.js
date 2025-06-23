@@ -1,30 +1,43 @@
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const path = require("path");
+
+// Load backend/.env, but use BACKEND_PORT not PORT
+require("dotenv").config({
+  path: path.join(__dirname, "..", "backend", ".env"),
+});
+
+const backendPort = process.env.BACKEND_PORT || 5050;
 
 module.exports = {
   webpack: (config) => config,
   devServer: (configFunction) => {
     return (proxy, allowedHost) => {
       const config = configFunction(proxy, allowedHost);
+
       config.setupMiddlewares = (middlewares, devServer) => {
         if (!devServer) {
-          throw new Error('webpack-dev-server is not defined');
+          throw new Error("webpack-dev-server is not defined");
         }
+
         devServer.app.use(
-          '/api',
+          "/api",
           createProxyMiddleware({
-            target: 'http://localhost:5000',
+            target: `http://localhost:${backendPort}`,
             changeOrigin: true,
           })
         );
+
         devServer.app.use(
-          '/uploads',
+          "/uploads",
           createProxyMiddleware({
-            target: 'http://localhost:5000',
+            target: `http://localhost:${backendPort}`,
             changeOrigin: true,
           })
         );
+
         return middlewares;
       };
+
       return config;
     };
   },
