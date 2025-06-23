@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 const User = require('./models/User');
 
 // Connect to MongoDB
@@ -34,7 +35,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Static uploads folder
-app.use('/uploads', express.static('uploads'));
+// Serve uploaded images from the project root rather than the backend folder
+// When running the backend directly (e.g. via `npm start` in development)
+// the current working directory is `backend`, so `express.static('uploads')`
+// would incorrectly look for `backend/uploads`. Use an absolute path so the
+// uploads directory at the project root is always served correctly.
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
