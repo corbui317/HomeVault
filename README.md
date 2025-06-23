@@ -4,8 +4,8 @@ This project includes a Node/Express backend and a React frontend.
 
 ## Prerequisites
 
-* [Node.js](https://nodejs.org/) (v16 or newer)
-* [MongoDB](https://www.mongodb.com/) running locally or in the cloud
+- [Node.js](https://nodejs.org/) (v16 or newer)
+- [MongoDB](https://www.mongodb.com/) running locally or in the cloud
 
 ## Setup
 
@@ -15,6 +15,7 @@ This project includes a Node/Express backend and a React frontend.
    git clone <repo-url>
    cd HomeVault
    ```
+
 2. **Install root dependencies** (used by the development script and the production server):
 
    ```bash
@@ -39,12 +40,16 @@ This project includes a Node/Express backend and a React frontend.
    mkdir uploads
    ```
 
-5. **Configure the database and environment variables.** Create a file named `.env` inside the `backend` folder with the following contents (adjust as needed):env` inside the `backend` folder with the following contents (adjust as needed):
+5. **Configure the database and environment variables.** Create a file named `.env` inside the `backend` folder with the following contents (adjust as needed):env`inside the`backend` folder with the following contents (adjust as needed):
 
    ```
    MONGO_URI=mongodb://localhost:27017/homevault
    JWT_SECRET=your_secret_key
    CLIENT_ORIGIN=http://localhost:3000
+   PORT=5000
+   # Optional: port for the frontend dev proxy.
+   # If omitted, the proxy uses PORT.
+   BACKEND_PORT=5000
    ```
 
    Ensure that your MongoDB server is running and reachable via the `MONGO_URI` you provide.
@@ -57,6 +62,7 @@ frontend with a single command:
 ```bash
 npm run dev
 ```
+
 This works the same on Windows, macOS and Linux and will run
 `npm start` in the `backend` and `frontend` directories
 concurrently.

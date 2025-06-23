@@ -6,7 +6,9 @@ require("dotenv").config({
   path: path.join(__dirname, "..", "backend", ".env"),
 });
 
-const backendPort = process.env.BACKEND_PORT || 5050;
+// Use BACKEND_PORT if defined, otherwise fall back to PORT (from the backend
+// server) and finally default to 5000.
+const backendPort = process.env.BACKEND_PORT || process.env.PORT || 5000;
 
 module.exports = {
   webpack: (config) => config,
