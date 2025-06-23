@@ -29,8 +29,7 @@ import {
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState(null);
-  const [dragging, setDragging] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState(null);  
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -77,31 +76,17 @@ export default function Dashboard() {
   function handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
-    setDragging(true);
   }
 
   function handleDragLeave(e) {
     e.preventDefault();
-    setDragging(false);
   }
 
   function handleDrop(e) {
     e.preventDefault();
-    setDragging(false);
     const dropped = e.dataTransfer.files[0];
     if (dropped) {
       upload(dropped);
-    }
-  } 
-
-  async function remove(name) {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`/api/photos/${name}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      await loadFiles();
     }
   }
 
