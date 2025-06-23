@@ -1,11 +1,36 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "../App.css";
+import {
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+  Avatar,
+  LinearProgress,
+  Fab,
+  ImageList,
+  ImageListItem,
+  Modal,
+} from "@mui/material";
+import {
+  Photo as PhotoIcon,
+  Delete as DeleteIcon,
+  Star as StarIcon,
+  Album as AlbumIcon,
+  Settings as SettingsIcon,
+  Upload as UploadIcon,
+} from "@mui/icons-material";
 
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);  
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -86,45 +111,125 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard-container">
-      <nav className="sidebar">
-        <h1>HomeVault</h1>
-        <ul>
-          <li>
-            <button type="button" onClick={() => fileInputRef.current.click()}>Upload</button>
-          </li>
-          <li>Delete</li>
-          <li>Recently Added</li>
-          <li>Trash</li>
-          <li>Albums</li>
-          <li>Favorites</li>
-          <li>
-            <button type="button" onClick={logout}>Sign Out</button>
-          </li>          
-        </ul>
-      </nav>
-      <div
-        className={`dashboard-content${dragging ? " dragging" : ""}`}
+    <Box sx={{ display: 'flex' }}>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
+        }}
+      >
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div">
+            HomeVault
+          </Typography>
+        </Toolbar>
+        <Box sx={{ overflow: 'auto', flex: 1 }}>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => fileInputRef.current.click()}>
+                <ListItemIcon>
+                  <UploadIcon />
+                </ListItemIcon>
+                <ListItemText primary="Upload" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <PhotoIcon />
+                </ListItemIcon>
+                <ListItemText primary="Photos" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <AlbumIcon />
+                </ListItemIcon>
+                <ListItemText primary="Albums" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <StarIcon />
+                </ListItemIcon>
+                <ListItemText primary="Favorites" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <DeleteIcon />
+                </ListItemIcon>
+                <ListItemText primary="Trash" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Settings" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
+        <Box sx={{ p: 2 }}>
+          <LinearProgress variant="determinate" value={90} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+            <Avatar sx={{ width: 32, height: 32, mr: 1 }}>U</Avatar>
+            <Typography variant="body2">User</Typography>
+          </Box>
+          <ListItemButton onClick={logout} sx={{ mt: 1 }}>
+            <ListItemText primary="Sign Out" />
+          </ListItemButton>
+        </Box>
+      </Drawer>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 3 }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <h2 className="mb-4">HomeVault Dashboard</h2>
+        <Toolbar />
         <input
           ref={fileInputRef}
           type="file"
-          style={{ display: "none" }}
+          style={{ display: 'none' }}
           onChange={handleFileChange}
         />
-        <div className="gallery-grid">
-          {files.filter((f) => f !== ".gitkeep").map((f) => (
-            <div key={f} className="photo-item">
-              <img src={`/uploads/${f}`} alt={f} />
-              <button onClick={() => remove(f)}>Delete</button>
-            </div>
+        <ImageList variant="masonry" cols={3} gap={8}>
+          {files.filter((f) => f !== '.gitkeep').map((f) => (
+            <ImageListItem key={f}>
+              <img
+                src={`/uploads/${f}`}
+                alt={f}
+                loading="lazy"
+                onClick={() => setSelectedPhoto(f)}
+              />
+            </ImageListItem>
           ))}
-        </div>
-      </div>
-    </div>
+        </ImageList>
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{ position: 'fixed', bottom: 32, right: 32 }}
+          onClick={() => fileInputRef.current.click()}
+        >
+          <UploadIcon />
+        </Fab>
+        <Modal open={!!selectedPhoto} onClose={() => setSelectedPhoto(null)}>
+          <Box sx={{ p: 2, outline: 'none' }}>
+            {selectedPhoto && (
+              <img src={`/uploads/${selectedPhoto}`} alt={selectedPhoto} style={{ maxWidth: '90vw', maxHeight: '90vh' }} />
+            )}
+          </Box>
+        </Modal>
+      </Box>
+    </Box>
   );
 }

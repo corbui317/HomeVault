@@ -1,15 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 :root {
+  --color-background: #121212;
+  --color-text: #e0e0e0;  
   --color-primary: #6D597A;
   --color-secondary: #B56576;
-  --color-accent: #EDE0D4;
+  --sidebar-width: 240px;
 }
 
 body {
   margin: 0;
-  font-family: 'Product Sans', Arial, sans-serif;
-  background: var(--color-accent);
-  color: var(--color-primary);
+  font-family: 'Roboto', Arial, sans-serif;
+  background: var(--color-background);
+  color: var(--color-text);
 }
 
 .login-container {
@@ -18,11 +20,11 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: var(--color-accent);
+  background-color: var(--color-background);
 }
 
 .login-container .logo {
-  font-family: 'Product Sans', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 5rem;
   margin-bottom: 1rem;
 }
@@ -66,7 +68,7 @@ button:hover {
 }
 
 .register-form {
-  background: #fff;
+  background: #1f1f1f;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
