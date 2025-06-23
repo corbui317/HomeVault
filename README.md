@@ -29,7 +29,7 @@ This project includes a Node/Express backend and a React frontend.
    cd ..
    ```
 
-   The frontend relies on `react-router-dom` and other React packages which will be installed by the command above.
+   The frontend relies on `react-router-dom` and other React packages which will be installed by the command above. The `frontend/package-lock.json` file is not tracked in the repository, so a fresh lock file will be generated the first time you run `npm install` in that folder. be installed by the command above.
 
 4. **Configure the database and environment variables.** Create a file named `.env` inside the `backend` folder with the following contents (adjust as needed):
 
