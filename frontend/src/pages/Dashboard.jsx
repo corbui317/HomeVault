@@ -187,10 +187,11 @@ export default function Dashboard() {
           style={{ display: 'none' }}
           onChange={handleFileChange}
         />
-        <ImageList variant="masonry" cols={3} gap={8}>
+        <ImageList variant="masonry" cols={3} gap={8} className="masonry-grid">
           {files.filter((f) => f !== '.gitkeep').map((f) => (
             <ImageListItem key={f}>
               <img
+                className="masonry-image"
                 src={`/uploads/${f}`}
                 alt={f}
                 loading="lazy"
