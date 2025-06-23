@@ -6,7 +6,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showRegister, setShowRegister] = useState(false);
-  const [language, setLanguage] = useState("en");  
+  const [language, setLanguage] = useState("en");
   const [regData, setRegData] = useState({
     email: "",
     firstName: "",
@@ -44,7 +44,8 @@ export default function Login() {
       signIn: "Iniciar sesi\u00f3n",
       continue: "para continuar a HomeVault",
       emailOrPhone: "Correo electr\u00f3nico o tel\u00e9fono",
-      enterEmail: "Ingrese un correo electr\u00f3nico o n\u00famero de tel\u00e9fono",
+      enterEmail:
+        "Ingrese un correo electr\u00f3nico o n\u00famero de tel\u00e9fono",
       password: "Contrase\u00f1a",
       forgotEmail: "\u00bfOlvidaste el correo electr\u00f3nico?",
       createAccount: "Crear cuenta",
@@ -101,7 +102,7 @@ export default function Login() {
       setRegMessage("Registration failed");
     }
   }
-const [error, setError] = useState(false);
+  const [error, setError] = useState(false);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -109,7 +110,7 @@ const [error, setError] = useState(false);
       setError(true);
       return;
     }
-    setError(false);    
+    setError(false);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -138,16 +139,16 @@ const [error, setError] = useState(false);
             onChange={(e) => setUsername(e.target.value)}
             placeholder={t.emailOrPhone}
           />
-          {error && (
-            <div className="error-msg">{t.enterEmail}</div>
-          )}
+          {error && <div className="error-msg">{t.enterEmail}</div>}
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t.password}
           />
-          <div className="link" style={{ marginBottom: "16px" }}>{t.forgotEmail}</div>
+          <div className="link" style={{ marginBottom: "16px" }}>
+            {t.forgotEmail}
+          </div>
           <div className="actions">
             <button
               type="button"
@@ -170,49 +171,63 @@ const [error, setError] = useState(false);
           <option value="es">Espa\u00f1ol</option>
         </select>
       </div>
-      
+
       {showRegister && (
         <div className="register-modal">
-          <form className="register-form" onSubmit={handleRegister}>
-            <h2>{t.register}</h2>
-            <input
-              value={regData.email}
-              onChange={(e) => handleRegChange("email", e.target.value)}
-              placeholder={t.email}
-            />
-            <input
-              value={regData.firstName}
-              onChange={(e) => handleRegChange("firstName", e.target.value)}
-              placeholder={t.firstName}
-            />
-            <input
-              value={regData.lastName}
-              onChange={(e) => handleRegChange("lastName", e.target.value)}
-              placeholder={t.lastName}
-            />
-            <input
-              className={usernameError ? "invalid" : ""}
-              value={regData.username}
-              onChange={(e) => handleRegChange("username", e.target.value)}
-              placeholder={t.username}
-            />
-            {usernameError && (
-              <div className="error-msg">
-                {t.usernameInvalid}
+          <div className="login-box">
+            <h1 className="title">{t.register}</h1>
+            <form
+              className="register-form login-form"
+              onSubmit={handleRegister}
+            >
+              <input
+                value={regData.email}
+                onChange={(e) => handleRegChange("email", e.target.value)}
+                placeholder={t.email}
+              />
+              <input
+                value={regData.firstName}
+                onChange={(e) => handleRegChange("firstName", e.target.value)}
+                placeholder={t.firstName}
+              />
+              <input
+                value={regData.lastName}
+                onChange={(e) => handleRegChange("lastName", e.target.value)}
+                placeholder={t.lastName}
+              />
+              <input
+                className={usernameError ? "error" : ""}
+                value={regData.username}
+                onChange={(e) => handleRegChange("username", e.target.value)}
+                placeholder={t.username}
+              />
+              {usernameError && (
+                <div className="error-msg">{t.usernameInvalid}</div>
+              )}
+              <input
+                type="password"
+                value={regData.password}
+                onChange={(e) => handleRegChange("password", e.target.value)}
+                placeholder={t.password}
+              />
+              <div className="actions">
+                <button
+                  type="button"
+                  className="link"
+                  onClick={() => {
+                    setShowRegister(false);
+                    setRegMessage("");
+                  }}
+                >
+                  {t.close}
+                </button>
+                <button type="submit" className="next-btn">
+                  {t.submit}
+                </button>
               </div>
-            )}
-            <input
-              type="password"
-              value={regData.password}
-              onChange={(e) => handleRegChange("password", e.target.value)}
-              placeholder={t.password}
-            />
-            <button type="submit">{t.submit}</button>
-            <button type="button" onClick={() => {setShowRegister(false); setRegMessage("");}}>
-              {t.close}
-            </button>
-            {regMessage && <div className="success-msg">{regMessage}</div>}
-          </form>
+              {regMessage && <div className="success-msg">{regMessage}</div>}
+            </form>
+          </div>
         </div>
       )}
     </div>

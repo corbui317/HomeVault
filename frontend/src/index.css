@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
 :root {
   --color-background: #121212;
-  --color-text: #e0e0e0;  
-  --color-primary: #6D597A;
-  --color-secondary: #B56576;
+  --color-text: #e0e0e0;
+  --color-primary: #6d597a;
+  --color-secondary: #b56576;
   --sidebar-width: 240px;
 }
 
 body {
   margin: 0;
-  font-family: 'Roboto', Arial, sans-serif;
+  font-family: "Roboto", Arial, sans-serif;
   background: var(--color-background);
   color: var(--color-text);
 }
@@ -24,7 +24,7 @@ body {
 }
 
 .login-container .logo {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: 5rem;
   margin-bottom: 1rem;
 }
@@ -68,22 +68,16 @@ button:hover {
 }
 
 .register-form {
-  background: #1f1f1f;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  width: 400px;
 }
 
-.register-form input.invalid {
-  border-color: red;
-  background-color: #ffe6e6;
+.register-form input.error {
+  border-color: #ea4335;
 }
 
 .error-msg {
-  color: red;
+  color: #ea4335;
   margin-bottom: 10px;
 }
 
