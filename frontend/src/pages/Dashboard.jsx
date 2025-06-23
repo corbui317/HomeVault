@@ -16,6 +16,7 @@ import {
   ImageList,
   ImageListItem,
   Modal,
+  IconButton,
 } from "@mui/material";
 import {
   Photo as PhotoIcon,
@@ -24,6 +25,12 @@ import {
   Album as AlbumIcon,
   Settings as SettingsIcon,
   Upload as UploadIcon,
+  ArrowBack as ArrowBackIcon,
+  Share as ShareIcon,
+  Info as InfoIcon,
+  StarBorder as StarBorderIcon,
+  ZoomIn as ZoomInIcon,
+  MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
 
 export default function Dashboard() {
@@ -96,13 +103,13 @@ export default function Dashboard() {
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Drawer
         variant="permanent"
         sx={{
           width: 240,
           flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
+          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: "border-box" },
         }}
       >
         <Toolbar>
@@ -110,7 +117,7 @@ export default function Dashboard() {
             HomeVault
           </Typography>
         </Toolbar>
-        <Box sx={{ overflow: 'auto', flex: 1 }}>
+        <Box sx={{ overflow: "auto", flex: 1 }}>
           <List>
             <ListItem disablePadding>
               <ListItemButton onClick={() => fileInputRef.current.click()}>
@@ -164,7 +171,7 @@ export default function Dashboard() {
         </Box>
         <Box sx={{ p: 2 }}>
           <LinearProgress variant="determinate" value={90} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
             <Avatar sx={{ width: 32, height: 32, mr: 1 }}>U</Avatar>
             <Typography variant="body2">User</Typography>
           </Box>
@@ -184,35 +191,107 @@ export default function Dashboard() {
         <input
           ref={fileInputRef}
           type="file"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           onChange={handleFileChange}
         />
         <ImageList variant="masonry" cols={3} gap={8} className="masonry-grid">
-          {files.filter((f) => f !== '.gitkeep').map((f) => (
-            <ImageListItem key={f}>
-              <img
-                className="masonry-image"
-                src={`/uploads/${f}`}
-                alt={f}
-                loading="lazy"
-                onClick={() => setSelectedPhoto(f)}
-              />
-            </ImageListItem>
-          ))}
+          {files
+            .filter((f) => f !== ".gitkeep")
+            .map((f) => (
+              <ImageListItem key={f}>
+                <img
+                  className="masonry-image"
+                  src={`/uploads/${f}`}
+                  alt={f}
+                  loading="lazy"
+                  onClick={() => setSelectedPhoto(f)}
+                />
+              </ImageListItem>
+            ))}
         </ImageList>
         <Fab
           color="primary"
           aria-label="add"
-          sx={{ position: 'fixed', bottom: 32, right: 32 }}
+          sx={{ position: "fixed", bottom: 32, right: 32 }}
           onClick={() => fileInputRef.current.click()}
         >
           <UploadIcon />
         </Fab>
-        <Modal open={!!selectedPhoto} onClose={() => setSelectedPhoto(null)}>
-          <Box sx={{ p: 2, outline: 'none' }}>
-            {selectedPhoto && (
-              <img src={`/uploads/${selectedPhoto}`} alt={selectedPhoto} style={{ maxWidth: '90vw', maxHeight: '90vh' }} />
-            )}
+        <Modal
+          open={!!selectedPhoto}
+          onClose={() => setSelectedPhoto(null)}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          BackdropProps={{
+            sx: {
+              backgroundColor: "rgba(0,0,0,0.9)",
+              backdropFilter: "blur(4px)",
+            },
+          }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", p: 1 }}
+            >
+              <IconButton
+                onClick={() => setSelectedPhoto(null)}
+                sx={{ color: "#fff" }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Box>
+                <IconButton sx={{ color: "#fff" }}>
+                  <ShareIcon />
+                </IconButton>
+                <IconButton sx={{ color: "#fff" }}>
+                  <InfoIcon />
+                </IconButton>
+                <IconButton sx={{ color: "#fff" }}>
+                  <StarBorderIcon />
+                </IconButton>
+                <IconButton sx={{ color: "#fff" }}>
+                  <DeleteIcon />
+                </IconButton>
+                <IconButton sx={{ color: "#fff" }}>
+                  <ZoomInIcon />
+                </IconButton>
+                <IconButton sx={{ color: "#fff" }}>
+                  <MoreVertIcon />
+                </IconButton>
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 2,
+              }}
+            >
+              {selectedPhoto && (
+                <img
+                  src={`/uploads/${selectedPhoto}`}
+                  alt={selectedPhoto}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+            </Box>
           </Box>
         </Modal>
       </Box>
