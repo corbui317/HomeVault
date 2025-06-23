@@ -46,9 +46,9 @@ This project includes a Node/Express backend and a React frontend.
    MONGO_URI=mongodb://localhost:27017/homevault
    JWT_SECRET=your_secret_key
    CLIENT_ORIGIN=http://localhost:3000
+   # Port the Express backend listens on.
+   # The server will use BACKEND_PORT if set, falling back to PORT.
    PORT=5000
-   # Optional: port for the frontend dev proxy.
-   # If omitted, the proxy uses PORT.
    BACKEND_PORT=5000
    ```
 
