@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -12,7 +12,6 @@ import {
   Typography,
   Avatar,
   LinearProgress,
-  Fab,
   ImageList,
   ImageListItem,
   Modal,
@@ -22,22 +21,13 @@ import {
   Photo as PhotoIcon,
   Delete as DeleteIcon,
   Star as StarIcon,
-  Album as AlbumIcon,
-  Settings as SettingsIcon,
-  Upload as UploadIcon,
   ArrowBack as ArrowBackIcon,
-  Share as ShareIcon,
-  Info as InfoIcon,
-  StarBorder as StarBorderIcon,
-  ZoomIn as ZoomInIcon,
-  MoreVert as MoreVertIcon,
+  Settings as SettingsIcon,
 } from "@mui/icons-material";
 
-export default function Dashboard() {
+export default function Favorites() {
   const [files, setFiles] = useState([]);
-  const [file, setFile] = useState(null);
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const fileInputRef = useRef(null);
+  const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,7 +41,7 @@ export default function Dashboard() {
     });
     if (res.ok) {
       const data = await res.json();
-      setFiles(data.files);
+      setFiles(data.files.filter((f) => f.favorite));
     }
   }
 
@@ -62,62 +52,6 @@ export default function Dashboard() {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
-      const data = await res.json();
-      setSelectedPhoto({ ...photo, favorite: data.favorite });
-      await loadFiles();
-    }
-  }
-
-  async function upload(selectedFile) {
-    const fileToUpload = selectedFile || file;
-    if (!fileToUpload) return;
-    const token = localStorage.getItem("token");
-    const formData = new FormData();
-    formData.append("photo", fileToUpload);
-    const res = await fetch("/api/photos/upload", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    if (res.ok) {
-      setFile(null);
-      await loadFiles();
-    }
-  }
-
-  function handleFileChange(e) {
-    const selected = e.target.files[0];
-    if (selected) {
-      setFile(selected);
-      upload(selected);
-    }
-  }
-
-  function handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-  }
-
-  function handleDragLeave(e) {
-    e.preventDefault();
-  }
-
-  function handleDrop(e) {
-    e.preventDefault();
-    const dropped = e.dataTransfer.files[0];
-    if (dropped) {
-      upload(dropped);
-    }
-  }
-
-  async function trashPhoto(name) {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`/api/photos/${name}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      setSelectedPhoto(null);
       await loadFiles();
     }
   }
@@ -145,27 +79,11 @@ export default function Dashboard() {
         <Box sx={{ overflow: "auto", flex: 1 }}>
           <List>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => fileInputRef.current.click()}>
-                <ListItemIcon>
-                  <UploadIcon />
-                </ListItemIcon>
-                <ListItemText primary="Upload" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
               <ListItemButton onClick={() => navigate("/dashboard")}>
                 <ListItemIcon>
                   <PhotoIcon />
                 </ListItemIcon>
                 <ListItemText primary="Photos" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <AlbumIcon />
-                </ListItemIcon>
-                <ListItemText primary="Albums" />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
@@ -205,46 +123,24 @@ export default function Dashboard() {
           </ListItemButton>
         </Box>
       </Drawer>
-      <Box
-        component="main"
-        sx={{ flexGrow: 1, p: 3 }}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-        <input
-          ref={fileInputRef}
-          type="file"
-          style={{ display: "none" }}
-          onChange={handleFileChange}
-        />
         <ImageList variant="masonry" cols={3} gap={8} className="masonry-grid">
-          {files
-            .filter((f) => f.name !== ".gitkeep")
-            .map((f) => (
-              <ImageListItem key={f.name}>
-                <img
-                  className="masonry-image"
-                  src={`/uploads/${f.name}`}
-                  alt={f.name}
-                  loading="lazy"
-                  onClick={() => setSelectedPhoto(f)}
-                />
-              </ImageListItem>
-            ))}
+          {files.map((f) => (
+            <ImageListItem key={f.name}>
+              <img
+                className="masonry-image"
+                src={`/uploads/${f.name}`}
+                alt={f.name}
+                loading="lazy"
+                onClick={() => setSelected(f)}
+              />
+            </ImageListItem>
+          ))}
         </ImageList>
-        <Fab
-          color="primary"
-          aria-label="add"
-          sx={{ position: "fixed", bottom: 32, right: 32 }}
-          onClick={() => fileInputRef.current.click()}
-        >
-          <UploadIcon />
-        </Fab>
         <Modal
-          open={!!selectedPhoto}
-          onClose={() => setSelectedPhoto(null)}
+          open={!!selected}
+          onClose={() => setSelected(null)}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -270,37 +166,19 @@ export default function Dashboard() {
               sx={{ display: "flex", justifyContent: "space-between", p: 1 }}
             >
               <IconButton
-                onClick={() => setSelectedPhoto(null)}
+                onClick={() => setSelected(null)}
                 sx={{ color: "#fff" }}
               >
                 <ArrowBackIcon />
               </IconButton>
-              <Box>
-                <IconButton sx={{ color: "#fff" }}>
-                  <ShareIcon />
-                </IconButton>
-                <IconButton sx={{ color: "#fff" }}>
-                  <InfoIcon />
-                </IconButton>
+              {selected && (
                 <IconButton
                   sx={{ color: "#fff" }}
-                  onClick={() => toggleFavorite(selectedPhoto)}
+                  onClick={() => toggleFavorite(selected)}
                 >
-                  {selectedPhoto?.favorite ? <StarIcon /> : <StarBorderIcon />}
+                  <StarIcon />
                 </IconButton>
-                <IconButton
-                  sx={{ color: "#fff" }}
-                  onClick={() => trashPhoto(selectedPhoto.name)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-                <IconButton sx={{ color: "#fff" }}>
-                  <ZoomInIcon />
-                </IconButton>
-                <IconButton sx={{ color: "#fff" }}>
-                  <MoreVertIcon />
-                </IconButton>
-              </Box>
+              )}
             </Box>
             <Box
               sx={{
@@ -311,10 +189,10 @@ export default function Dashboard() {
                 p: 2,
               }}
             >
-              {selectedPhoto && (
+              {selected && (
                 <img
-                  src={`/uploads/${selectedPhoto.name}`}
-                  alt={selectedPhoto.name}
+                  src={`/uploads/${selected.name}`}
+                  alt={selected.name}
                   style={{
                     maxWidth: "100%",
                     maxHeight: "100%",

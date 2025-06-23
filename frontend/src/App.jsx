@@ -8,6 +8,7 @@ import {
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard"; // placeholder for your main UI
 import Trash from "./pages/Trash";
+import Favorites from "./pages/Favorites";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -28,10 +29,10 @@ function App() {
           }
         />
         <Route
-          path="/dashboard/trash"
+          path="/dashboard/favorites"
           element={
             <ProtectedRoute>
-              <Trash />
+              <Favorites />
             </ProtectedRoute>
           }
         />
