@@ -9,65 +9,76 @@ This project includes a Node/Express backend and a React frontend.
 
 ## Setup
 
-1. **Clone the repository** and change into the project directory:
+### 1. Clone the repository
 
-   ```bash
-   git clone <repo-url>
-   cd HomeVault
-   ```
+```bash
+git clone <repo-url>
+cd HomeVault
+```
 
-2. **Install root dependencies** (used by the development script and the production server):
+### 2. Install all dependencies
 
-   ```bash
-   npm install
-   ```
+#### Install root dependencies (for dev script and production server):
 
-3. **Install backend and frontend dependencies**:
+```bash
+npm install
+```
 
-   ```bash
-   cd backend && npm install
-   cd ../frontend && npm install
-   cd ..
-   ```
+#### Install backend and frontend dependencies:
 
-   The frontend relies on `react-router-dom` and other React packages which will be installed by the command above. The `frontend/package-lock.json` file is not tracked in the repository, so a fresh lock file will be generated the first time you run `npm install` in that folder. be installed by the command above.
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+cd ..
+```
 
-4. **Create the `uploads` directory.** Uploaded photos are stored in this
-   folder. A blank `.gitkeep` file is included so the folder exists when the
-   repository is cloned, but if it doesn't exist you can create it with:
+### 3. Create the uploads directory (if it doesn't exist)
 
-   ```bash
-   mkdir uploads
-   ```
+```bash
+mkdir uploads
+```
 
-5. **Configure the database and environment variables.** Create a file named `.env` inside the `backend` folder with the following contents (adjust as needed):env`inside the`backend` folder with the following contents (adjust as needed):
+### 4. Configure environment variables
 
-   ```
-   MONGO_URI=mongodb://localhost:27017/homevault
-   JWT_SECRET=your_secret_key
-   CLIENT_ORIGIN=http://localhost:3000
-   # Port the Express backend listens on.
-   # The server will use BACKEND_PORT if set, falling back to PORT.
-   PORT=5000
-   BACKEND_PORT=5000
-   ```
+Create a file named `.env` inside the `backend` folder with the following contents (edit as needed):
 
-   Ensure that your MongoDB server is running and reachable via the `MONGO_URI` you provide.
+```
+MONGO_URI=mongodb://localhost:27017/homevault
+JWT_SECRET=your_secret_key
+CLIENT_ORIGIN=http://localhost:3000
+PORT=5000
+BACKEND_PORT=5000
+```
 
-## Running in development
+**Never commit your .env file to version control!**
 
-From the project root you can start both the backend and the React
-frontend with a single command:
+### 5. Add Firebase config (if using Firebase Auth/Storage)
+
+Create a file `frontend/src/firebase.js` and fill in your Firebase config as described in the codebase.
+
+### 6. Add social login logos
+
+Place the following files in `frontend/public/assets/`:
+
+- `google-logo.png`
+- `facebook-logo.png`
+- `twitter-logo.png`
+
+## Running the project
+
+### Development mode (recommended for local dev)
+
+From the project root, run:
 
 ```bash
 npm run dev
 ```
 
-This works the same on Windows, macOS and Linux and will run
-`npm start` in the `backend` and `frontend` directories
-concurrently.
+This will start both the backend and frontend concurrently.
 
-The root `server.js` can still serve the compiled frontend if you first build the React project:
+### Production mode
+
+1. Build the frontend:
 
 ```bash
 cd frontend
@@ -75,21 +86,29 @@ npm run build
 cd ..
 ```
 
-Then start the server:
+2. Start the server:
 
 ```bash
 node server.js
 ```
 
-After building, open `http://localhost:5000` to view the login page.
-Use the default credentials **admin/password** to sign in and access the
-dashboard where you can upload and manage photos.
+Visit `http://localhost:5000` to use the app.
+
+## Security & .gitignore
+
+- Your `.env` files and any sensitive keys should **never** be committed to git.
+- The `.gitignore` is already set up to ignore:
+  - `node_modules/`
+  - `frontend/build/`
+  - `.env` and `backend/.env`
+  - `uploads/` (except `.gitkeep`)
+- **Never share your JWT_SECRET, Firebase API keys, or MongoDB credentials publicly.**
 
 ## Troubleshooting
 
-Running `npm run dev` installs missing packages for the frontend and backend
-automatically. If you see warnings about deprecated APIs (such as
-`util._extend`) they originate from underlying libraries and should not prevent
-the development server from starting. To ensure all packages are available,
-run `npm install` in the project root and in each subfolder (`backend` and
-`frontend`) before starting the dev script.
+- If you see warnings about deprecated APIs (such as `util._extend`), they originate from underlying libraries and should not prevent the dev server from starting.
+- If you have issues, run `npm install` in the root, `backend`, and `frontend` folders.
+
+---
+
+For more details, see the code comments and documentation in each folder.

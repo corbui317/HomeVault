@@ -5,5 +5,7 @@ frontend/build/
 frontend/package-lock.json
 .env
 backend/.env
+frontend/.env
+frontend/src/firebase.js
 uploads/
 !uploads/.gitkeep
