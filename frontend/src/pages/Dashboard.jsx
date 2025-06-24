@@ -31,12 +31,16 @@ import {
   StarBorder as StarBorderIcon,
   ZoomIn as ZoomInIcon,
   MoreVert as MoreVertIcon,
+  CheckCircle as CheckCircleIcon,
+  CheckCircleOutline as CheckCircleOutlineIcon,
 } from "@mui/icons-material";
 
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState(null);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedPhotos, setSelectedPhotos] = useState([]);
+  const [hovered, setHovered] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -120,6 +124,44 @@ export default function Dashboard() {
       setSelectedPhoto(null);
       await loadFiles();
     }
+  }
+
+  function toggleSelect(name) {
+    setSelectedPhotos((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
+  }
+
+  async function bulkTrash() {
+    const token = localStorage.getItem("token");
+    await Promise.all(
+      selectedPhotos.map((name) =>
+        fetch(`/api/photos/${name}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      )
+    );
+    setSelectedPhotos([]);
+    await loadFiles();
+  }
+
+  async function bulkFavorite() {
+    const token = localStorage.getItem("token");
+    await Promise.all(
+      selectedPhotos.map((name) =>
+        fetch(`/api/photos/${name}/favorite`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      )
+    );
+    setSelectedPhotos([]);
+    await loadFiles();
+  }
+
+  function createAlbum() {
+    alert("Album creation not implemented");
   }
 
   function logout() {
@@ -213,6 +255,28 @@ export default function Dashboard() {
         onDrop={handleDrop}
       >
         <Toolbar />
+        {selectedPhotos.length > 0 && (
+          <Box
+            sx={{
+              position: "fixed",
+              top: 80,
+              left: 260,
+              zIndex: 1300,
+              display: "flex",
+              gap: 1,
+            }}
+          >
+            <IconButton onClick={bulkFavorite} sx={{ color: "#fff" }}>
+              <StarIcon />
+            </IconButton>
+            <IconButton onClick={bulkTrash} sx={{ color: "#fff" }}>
+              <DeleteIcon />
+            </IconButton>
+            <IconButton onClick={createAlbum} sx={{ color: "#fff" }}>
+              <AlbumIcon />
+            </IconButton>
+          </Box>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -223,7 +287,35 @@ export default function Dashboard() {
           {files
             .filter((f) => f.name !== ".gitkeep")
             .map((f) => (
-              <ImageListItem key={f.name}>
+              <ImageListItem
+                key={f.name}
+                onMouseEnter={() => setHovered(f.name)}
+                onMouseLeave={() => setHovered(null)}
+                sx={{ position: "relative" }}
+              >
+                {(hovered === f.name || selectedPhotos.includes(f.name)) && (
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSelect(f.name);
+                    }}
+                    sx={{
+                      position: "absolute",
+                      top: 4,
+                      left: 4,
+                      color: "#fff",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      "&:hover": { backgroundColor: "rgba(0,0,0,0.7)" },
+                    }}
+                  >
+                    {selectedPhotos.includes(f.name) ? (
+                      <CheckCircleIcon />
+                    ) : (
+                      <CheckCircleOutlineIcon />
+                    )}
+                  </IconButton>
+                )}
                 <img
                   className="masonry-image"
                   src={`/uploads/${f.name}`}
