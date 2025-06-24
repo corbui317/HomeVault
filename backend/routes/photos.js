@@ -7,39 +7,6 @@ const path = require("path");
 const Photo = require("../models/Photo");
 
 const uploadsDir = path.join(__dirname, "..", "..", "uploads");
-const trashDir = path.join(uploadsDir, "trash");
-fs.mkdirSync(trashDir, { recursive: true });
-const metaPath = path.join(trashDir, "metadata.json");
-
-function readMeta() {
-  try {
-    return JSON.parse(fs.readFileSync(metaPath, "utf8"));
-  } catch (err) {
-    return {};
-  }
-}
-
-function writeMeta(meta) {
-  fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
-}
-
-function cleanupTrash() {
-  const meta = readMeta();
-  const now = Date.now();
-  let changed = false;
-  for (const [name, info] of Object.entries(meta)) {
-    if (now - info.trashedAt > 30 * 24 * 60 * 60 * 1000) {
-      const filePath = path.join(trashDir, name);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      delete meta[name];
-      changed = true;
-    }
-  }
-  if (changed) writeMeta(meta);
-}
-
-cleanupTrash();
-setInterval(cleanupTrash, 24 * 60 * 60 * 1000);
 
 router.get("/", auth, async (req, res) => {
   try {
@@ -69,6 +36,12 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.post("/upload", auth, upload.single("photo"), async (req, res) => {
+  console.log("/api/photos/upload hit");
+  if (!req.file) {
+    console.error("No file uploaded");
+    return res.status(400).json({ msg: "No file uploaded" });
+  }
+  console.log("Uploaded file:", req.file);
   try {
     await Photo.create({
       filename: req.file.filename,
@@ -76,6 +49,7 @@ router.post("/upload", auth, upload.single("photo"), async (req, res) => {
     });
     res.json({ filename: req.file.filename });
   } catch (err) {
+    console.error("Upload error:", err);
     res.status(500).json({ msg: "Upload error" });
   }
 });
@@ -104,7 +78,7 @@ router.get("/trash", auth, async (req, res) => {
   try {
     const docs = await Photo.find({ trashBy: req.user.userId });
     const files = docs.map((d) => ({
-      trashName: d.trashName,
+      trashName: d.filename,
       originalName: d.filename,
     }));
     res.json({ files });
@@ -115,15 +89,9 @@ router.get("/trash", auth, async (req, res) => {
 
 router.post("/trash/:name/restore", auth, async (req, res) => {
   try {
-    const photo = await Photo.findOne({ trashName: req.params.name });
+    const photo = await Photo.findOne({ filename: req.params.name });
     if (!photo) return res.status(404).json({ msg: "Not found" });
     photo.trashBy = photo.trashBy.filter((id) => !id.equals(req.user.userId));
-    if (photo.trashBy.length === 0) {
-      const src = path.join(trashDir, req.params.name);
-      const dest = path.join(uploadsDir, photo.filename);
-      await fs.promises.rename(src, dest);
-      photo.trashName = undefined;
-    }
     await photo.save();
     res.json({ msg: "Restored" });
   } catch (err) {
@@ -133,11 +101,18 @@ router.post("/trash/:name/restore", auth, async (req, res) => {
 
 router.delete("/trash/:name", auth, async (req, res) => {
   try {
-    const photo = await Photo.findOne({ trashName: req.params.name });
+    const photo = await Photo.findOne({ filename: req.params.name });
     if (!photo) return res.status(404).json({ msg: "Not found" });
-    const filePath = path.join(trashDir, req.params.name);
-    await fs.promises.unlink(filePath);
-    await photo.deleteOne();
+    photo.trashBy = photo.trashBy.filter((id) => !id.equals(req.user.userId));
+    if (photo.trashBy.length === 0) {
+      const filePath = path.join(uploadsDir, req.params.name);
+      try {
+        await fs.promises.unlink(filePath);
+      } catch (e) {}
+      await photo.deleteOne();
+    } else {
+      await photo.save();
+    }
     res.json({ msg: "Deleted" });
   } catch (err) {
     res.status(500).json({ msg: "Error deleting file" });
@@ -149,14 +124,6 @@ router.delete("/:filename", auth, async (req, res) => {
     const photo = await Photo.findOne({ filename: req.params.filename });
     if (!photo) return res.status(404).json({ msg: "Not found" });
     if (!photo.trashBy.some((id) => id.equals(req.user.userId))) {
-      if (!photo.trashName) {
-        const trashName = `${Date.now()}-${req.params.filename}`;
-        await fs.promises.rename(
-          path.join(uploadsDir, req.params.filename),
-          path.join(trashDir, trashName)
-        );
-        photo.trashName = trashName;
-      }
       photo.trashBy.push(req.user.userId);
       await photo.save();
     }

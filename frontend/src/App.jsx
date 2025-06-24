@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./pages/Login";
+import FirebaseLogin from "./pages/FirebaseLogin";
 import Dashboard from "./pages/Dashboard"; // placeholder for your main UI
 import Trash from "./pages/Trash";
 import Favorites from "./pages/Favorites";
@@ -19,7 +19,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<FirebaseLogin />} />
         <Route
           path="/dashboard"
           element={

@@ -1,0 +1,28 @@
+
+> backend@1.0.0 start
+> node server.js
+
+Server running on port 5050
+MongoDB Connected
+/api/photos/upload hit
+Uploaded file: {
+  fieldname: 'photo',
+  originalname: 'Screenshot 2025-05-12 at 3.07.15â\x80¯PM.png',
+  encoding: '7bit',
+  mimetype: 'image/png',
+  destination: '/Users/cxb317/Documents/GitHub/HomeVault/uploads',
+  filename: '1750785999939-Screenshot 2025-05-12 at 3.07.15â\x80¯PM.png',
+  path: '/Users/cxb317/Documents/GitHub/HomeVault/uploads/1750785999939-Screenshot 2025-05-12 at 3.07.15â\x80¯PM.png',
+  size: 11124
+}
+/api/photos/upload hit
+Uploaded file: {
+  fieldname: 'photo',
+  originalname: 'Screenshot 2025-05-14 at 10.15.50â\x80¯AM.png',
+  encoding: '7bit',
+  mimetype: 'image/png',
+  destination: '/Users/cxb317/Documents/GitHub/HomeVault/uploads',
+  filename: '1750786015160-Screenshot 2025-05-14 at 10.15.50â\x80¯AM.png',
+  path: '/Users/cxb317/Documents/GitHub/HomeVault/uploads/1750786015160-Screenshot 2025-05-14 at 10.15.50â\x80¯AM.png',
+  size: 150356
+}
