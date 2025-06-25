@@ -28,9 +28,6 @@ import {
   ArrowBack as ArrowBackIcon,
   Share as ShareIcon,
   Info as InfoIcon,
-  StarBorder as StarBorderIcon,
-  ZoomIn as ZoomInIcon,
-  MoreVert as MoreVertIcon,
   CheckCircle as CheckCircleIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
 } from "@mui/icons-material";
@@ -378,19 +375,13 @@ export default function Dashboard() {
                   sx={{ color: "#fff" }}
                   onClick={() => toggleFavorite(selectedPhoto)}
                 >
-                  {selectedPhoto?.favorite ? <StarIcon /> : <StarBorderIcon />}
+                  {selectedPhoto?.favorite ? <StarIcon /> : <StarIcon />}
                 </IconButton>
                 <IconButton
                   sx={{ color: "#fff" }}
                   onClick={() => trashPhoto(selectedPhoto.name)}
                 >
                   <DeleteIcon />
-                </IconButton>
-                <IconButton sx={{ color: "#fff" }}>
-                  <ZoomInIcon />
-                </IconButton>
-                <IconButton sx={{ color: "#fff" }}>
-                  <MoreVertIcon />
                 </IconButton>
               </Box>
             </Box>

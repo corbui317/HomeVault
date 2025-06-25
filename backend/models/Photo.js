@@ -3,12 +3,11 @@ const mongoose = require("mongoose");
 const PhotoSchema = new mongoose.Schema({
   filename: { type: String, required: true, unique: true },
   uploadedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String, // Firebase UID
     required: true,
   },
-  favoriteBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  trashBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  favoriteBy: [{ type: String }], // Firebase UIDs
+  trashBy: [{ type: String }], // Firebase UIDs
   trashName: String,
 });
 

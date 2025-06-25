@@ -18,14 +18,14 @@ router.get("/", auth, async (req, res) => {
       if (!photo) {
         photo = await Photo.create({
           filename: f,
-          uploadedBy: req.user.userId,
+          uploadedBy: req.user.uid,
         });
       }
-      const trashed = photo.trashBy.some((id) => id.equals(req.user.userId));
+      const trashed = photo.trashBy.includes(req.user.uid);
       if (!trashed) {
         result.push({
           name: f,
-          favorite: photo.favoriteBy.some((id) => id.equals(req.user.userId)),
+          favorite: photo.favoriteBy.includes(req.user.uid),
         });
       }
     }
@@ -45,7 +45,7 @@ router.post("/upload", auth, upload.single("photo"), async (req, res) => {
   try {
     await Photo.create({
       filename: req.file.filename,
-      uploadedBy: req.user.userId,
+      uploadedBy: req.user.uid,
     });
     res.json({ filename: req.file.filename });
   } catch (err) {
@@ -58,10 +58,10 @@ router.post("/:filename/favorite", auth, async (req, res) => {
   try {
     const photo = await Photo.findOne({ filename: req.params.filename });
     if (!photo) return res.status(404).json({ msg: "Not found" });
-    const idx = photo.favoriteBy.findIndex((id) => id.equals(req.user.userId));
+    const idx = photo.favoriteBy.indexOf(req.user.uid);
     let fav;
     if (idx === -1) {
-      photo.favoriteBy.push(req.user.userId);
+      photo.favoriteBy.push(req.user.uid);
       fav = true;
     } else {
       photo.favoriteBy.splice(idx, 1);
@@ -76,7 +76,7 @@ router.post("/:filename/favorite", auth, async (req, res) => {
 
 router.get("/trash", auth, async (req, res) => {
   try {
-    const docs = await Photo.find({ trashBy: req.user.userId });
+    const docs = await Photo.find({ trashBy: req.user.uid });
     const files = docs.map((d) => ({
       trashName: d.filename,
       originalName: d.filename,
@@ -91,7 +91,7 @@ router.post("/trash/:name/restore", auth, async (req, res) => {
   try {
     const photo = await Photo.findOne({ filename: req.params.name });
     if (!photo) return res.status(404).json({ msg: "Not found" });
-    photo.trashBy = photo.trashBy.filter((id) => !id.equals(req.user.userId));
+    photo.trashBy = photo.trashBy.filter((uid) => uid !== req.user.uid);
     await photo.save();
     res.json({ msg: "Restored" });
   } catch (err) {
@@ -103,7 +103,7 @@ router.delete("/trash/:name", auth, async (req, res) => {
   try {
     const photo = await Photo.findOne({ filename: req.params.name });
     if (!photo) return res.status(404).json({ msg: "Not found" });
-    photo.trashBy = photo.trashBy.filter((id) => !id.equals(req.user.userId));
+    photo.trashBy = photo.trashBy.filter((uid) => uid !== req.user.uid);
     if (photo.trashBy.length === 0) {
       const filePath = path.join(uploadsDir, req.params.name);
       try {
@@ -123,8 +123,8 @@ router.delete("/:filename", auth, async (req, res) => {
   try {
     const photo = await Photo.findOne({ filename: req.params.filename });
     if (!photo) return res.status(404).json({ msg: "Not found" });
-    if (!photo.trashBy.some((id) => id.equals(req.user.userId))) {
-      photo.trashBy.push(req.user.userId);
+    if (!photo.trashBy.includes(req.user.uid)) {
+      photo.trashBy.push(req.user.uid);
       await photo.save();
     }
     res.json({ msg: "Trashed" });

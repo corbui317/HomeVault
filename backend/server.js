@@ -1,10 +1,17 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const admin = require("firebase-admin");
 const connectDB = require("./config/db");
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const path = require("path");
+
+// Initialize Firebase Admin SDK
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 // Connect to MongoDB
 connectDB();
