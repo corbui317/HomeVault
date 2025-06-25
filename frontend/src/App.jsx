@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard"; // placeholder for your main UI
 import Trash from "./pages/Trash";
 import Favorites from "./pages/Favorites";
 import Albums from "./pages/Albums";
+import Settings from "./pages/Settings";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -50,6 +51,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Albums />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />
