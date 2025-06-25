@@ -46,6 +46,7 @@ app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 // Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/photos", require("./routes/photos"));
+app.use("/api/albums", require("./routes/albums"));
 
 // Start the server
 // Allow BACKEND_PORT to override PORT so the frontend proxy can be configured

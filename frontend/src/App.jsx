@@ -9,6 +9,7 @@ import FirebaseLogin from "./pages/FirebaseLogin";
 import Dashboard from "./pages/Dashboard"; // placeholder for your main UI
 import Trash from "./pages/Trash";
 import Favorites from "./pages/Favorites";
+import Albums from "./pages/Albums";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -41,6 +42,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Trash />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/albums"
+          element={
+            <ProtectedRoute>
+              <Albums />
             </ProtectedRoute>
           }
         />

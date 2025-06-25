@@ -17,6 +17,12 @@ import {
   ImageListItem,
   Modal,
   IconButton,
+  TextField,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
 } from "@mui/material";
 import {
   Photo as PhotoIcon,
@@ -40,6 +46,9 @@ export default function Dashboard() {
   const [hovered, setHovered] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [albumModalOpen, setAlbumModalOpen] = useState(false);
+  const [albumName, setAlbumName] = useState("");
+  const [albumError, setAlbumError] = useState("");
 
   useEffect(() => {
     loadFiles();
@@ -157,8 +166,44 @@ export default function Dashboard() {
     await loadFiles();
   }
 
-  function createAlbum() {
-    alert("Album creation not implemented");
+  function handleOpenAlbumModal() {
+    setAlbumModalOpen(true);
+    setAlbumName("");
+    setAlbumError("");
+  }
+
+  function handleCloseAlbumModal() {
+    setAlbumModalOpen(false);
+    setAlbumName("");
+    setAlbumError("");
+  }
+
+  async function handleAddToAlbum() {
+    if (!albumName.trim()) {
+      setAlbumError("Album name is required");
+      return;
+    }
+    const token = localStorage.getItem("token");
+    const res = await fetch("/api/albums/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        albumName: albumName.trim(),
+        photoNames: selectedPhotos,
+      }),
+    });
+    if (!res.ok) {
+      setAlbumError("Failed to add to album");
+      return;
+    }
+    setAlbumModalOpen(false);
+    setAlbumName("");
+    setAlbumError("");
+    setSelectedPhotos([]);
+    // Optionally reload files or albums
   }
 
   function logout() {
@@ -200,7 +245,7 @@ export default function Dashboard() {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/dashboard/albums")}>
                 <ListItemIcon>
                   <AlbumIcon />
                 </ListItemIcon>
@@ -257,7 +302,7 @@ export default function Dashboard() {
             sx={{
               position: "fixed",
               top: 80,
-              left: 260,
+              right: 32,
               zIndex: 1300,
               display: "flex",
               gap: 1,
@@ -266,11 +311,11 @@ export default function Dashboard() {
             <IconButton onClick={bulkFavorite} sx={{ color: "#fff" }}>
               <StarIcon />
             </IconButton>
+            <IconButton onClick={handleOpenAlbumModal} sx={{ color: "#fff" }}>
+              <AlbumIcon />
+            </IconButton>
             <IconButton onClick={bulkTrash} sx={{ color: "#fff" }}>
               <DeleteIcon />
-            </IconButton>
-            <IconButton onClick={createAlbum} sx={{ color: "#fff" }}>
-              <AlbumIcon />
             </IconButton>
           </Box>
         )}
@@ -408,6 +453,48 @@ export default function Dashboard() {
             </Box>
           </Box>
         </Modal>
+        <Dialog
+          open={albumModalOpen}
+          onClose={handleCloseAlbumModal}
+          PaperProps={{
+            sx: {
+              background: "#181c20",
+              color: "#fff",
+              borderRadius: 3,
+              minWidth: 340,
+            },
+          }}
+        >
+          <DialogTitle sx={{ color: "#fff", background: "#23272f" }}>
+            Add to Album
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Album Name"
+              fullWidth
+              variant="filled"
+              value={albumName}
+              onChange={(e) => setAlbumName(e.target.value)}
+              error={!!albumError}
+              helperText={albumError}
+              sx={{ input: { color: "#fff" }, label: { color: "#aaa" } }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ background: "#23272f" }}>
+            <Button onClick={handleCloseAlbumModal} sx={{ color: "#fff" }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddToAlbum}
+              sx={{ color: "#fff" }}
+              variant="contained"
+            >
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );
