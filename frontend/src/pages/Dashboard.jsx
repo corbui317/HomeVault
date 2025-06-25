@@ -49,6 +49,7 @@ export default function Dashboard() {
   const [albumModalOpen, setAlbumModalOpen] = useState(false);
   const [albumName, setAlbumName] = useState("");
   const [albumError, setAlbumError] = useState("");
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     loadFiles();
@@ -106,14 +107,17 @@ export default function Dashboard() {
   function handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
+    setDragActive(true);
   }
 
   function handleDragLeave(e) {
     e.preventDefault();
+    setDragActive(false);
   }
 
   function handleDrop(e) {
     e.preventDefault();
+    setDragActive(false);
     const dropped = e.dataTransfer.files[0];
     if (dropped) {
       upload(dropped);
@@ -291,11 +295,38 @@ export default function Dashboard() {
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3 }}
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          position: "relative",
+          height: "100vh",
+          minHeight: 0,
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
+        {dragActive && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              bgcolor: "rgba(24,28,32,0.85)",
+              zIndex: 2000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <Typography variant="h4" sx={{ color: "#fff", fontWeight: 700 }}>
+              Drop files to upload
+            </Typography>
+          </Box>
+        )}
         <Toolbar />
         {selectedPhotos.length > 0 && (
           <Box
