@@ -36,13 +36,17 @@ export default function Trash() {
   }, []);
 
   async function loadFiles() {
+    console.log("Loading trash files...");
     const token = localStorage.getItem("token");
     const res = await fetch("/api/photos/trash", {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
       const data = await res.json();
+      console.log(`Loaded ${data.files.length} trashed files:`, data.files);
       setFiles(data.files);
+    } else {
+      console.error("Failed to load trash files:", res.status, res.statusText);
     }
   }
 
@@ -136,7 +140,7 @@ export default function Trash() {
             <ImageListItem key={f.trashName}>
               <img
                 className="masonry-image"
-                src={`/uploads/trash/${f.trashName}`}
+                src={`/uploads/${f.trashName}`}
                 alt={f.originalName}
                 loading="lazy"
                 onClick={() => setSelected(f)}
@@ -205,7 +209,7 @@ export default function Trash() {
             >
               {selected && (
                 <img
-                  src={`/uploads/trash/${selected.trashName}`}
+                  src={`/uploads/${selected.trashName}`}
                   alt={selected.originalName}
                   style={{
                     maxWidth: "100%",

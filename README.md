@@ -1,11 +1,92 @@
 # HomeVault
 
-This project includes a Node/Express backend and a React frontend.
+A secure photo storage and sharing application with user-specific access control.
 
-## Prerequisites
+## Features
 
-- [Node.js](https://nodejs.org/) (v16 or newer)
-- [MongoDB](https://www.mongodb.com/) running locally or in the cloud
+### Photo Management
+- Upload and store photos securely
+- Organize photos into albums
+- Mark photos as favorites
+- Move photos to trash (soft delete)
+- Bulk operations (select multiple photos)
+
+### User Access Control
+- **User-specific photo access**: Users can only view photos they have uploaded
+- **Photo sharing**: Share photos with other users via email
+- **Access validation**: All photo operations validate user permissions
+- **Ownership indicators**: Clear visual indicators for owned vs shared photos
+
+### Sharing System
+- Share photos with specific users by email address
+- View currently shared photos and recipients
+- Unshare photos from specific users
+- Only photo owners can share/unshare their photos
+- Shared users can view, favorite, and trash shared photos. Sharing permissions remain with the original owner
+
+### Security
+- Firebase authentication integration
+- JWT token-based API authentication
+- User-specific file access control
+- Secure file upload handling
+
+## API Endpoints
+
+### Photos
+- `GET /api/photos` - Get user's photos (owned + shared)
+- `GET /api/photos/:filename` - Get specific photo (with access control)
+- `POST /api/photos/upload` - Upload new photo
+- `POST /api/photos/:filename/favorite` - Toggle favorite status
+- `DELETE /api/photos/:filename` - Move photo to trash
+
+### Sharing
+- `POST /api/photos/:filename/share` - Share photo with email
+- `DELETE /api/photos/:filename/share/:email` - Unshare photo from email
+- `GET /api/photos/:filename/shared-with` - Get list of users photo is shared with
+- `GET /api/photos/shared/by-me` - Get photos shared by current user
+- `GET /api/photos/shared/with-me` - Get photos shared with current user
+
+### Albums
+- `GET /api/albums` - Get user's albums
+- `POST /api/albums/add` - Add photos to album
+- `DELETE /api/albums/:albumName` - Delete album
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+
+## Database Models
+
+### Photo
+```javascript
+{
+  filename: String,           // Unique filename
+  uploadedBy: String,         // Firebase UID of owner
+  favoriteBy: [String],       // Array of Firebase UIDs
+  trashBy: [String],          // Array of Firebase UIDs
+  sharedWith: [{              // Array of shared users
+    email: String,
+    sharedAt: Date
+  }],
+  isPublic: Boolean,          // For future public sharing
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Share
+```javascript
+{
+  photoId: ObjectId,          // Reference to Photo
+  filename: String,           // Photo filename
+  sharedBy: String,           // Firebase UID of sharer
+  sharedWith: String,         // Email of recipient
+  sharedAt: Date,
+  isActive: Boolean,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
 ## Setup
 
@@ -112,3 +193,19 @@ Visit `http://localhost:5000` to use the app.
 ---
 
 For more details, see the code comments and documentation in each folder.
+
+## Access Control Rules
+
+1. **Photo Ownership**: Users can only access photos they uploaded
+2. **Photo Sharing**: Users can access photos shared with them via email
+3. **Sharing Permissions**: Only photo owners can share/unshare their photos
+4. **Operation Permissions**: Shared users can view, favorite, and trash shared photos
+5. **No Cross-User Access**: Users cannot see photos from other users unless explicitly shared
+
+## Security Features
+
+- All API endpoints require valid Firebase JWT tokens
+- File access is validated against user permissions
+- Photo sharing is restricted to email addresses
+- No direct file system access without authentication
+- User-specific trash and favorites tracking

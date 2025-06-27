@@ -1,7 +1,7 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const path = require("path");
 
-// Load backend/.env, but use BACKEND_PORT not PORT
+// Load backend/.env, using BACKEND_PORT instead of PORT
 require("dotenv").config({
   path: path.join(__dirname, "..", "backend", ".env"),
 });
