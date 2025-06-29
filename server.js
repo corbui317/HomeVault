@@ -34,12 +34,24 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", require("./backend/routes/auth"));
 app.use("/api/photos", require("./backend/routes/photos"));
+app.use("/api/albums", require("./backend/routes/albums"));
 
 app.use(express.static(path.join(__dirname, "frontend", "build")));
 // Express 5 with path-to-regexp >=8 rejects the bare "*" pattern.
 // Use a catch-all path to serve the React build for any unknown route.
 app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "build", "index.html"));
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+    version: process.env.npm_package_version || "1.0.0"
+  });
 });
 
 // Respect BACKEND_PORT for consistency with the frontend dev proxy. Fall back

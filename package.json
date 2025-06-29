@@ -1,10 +1,27 @@
 {
   "name": "homevault",
   "version": "1.0.0",
+  "description": "A secure photo storage and sharing application",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node dev.js"
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm start",
+    "client": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "start": "node server.js"
+  },
+  "keywords": ["photo", "storage", "sharing", "security"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
