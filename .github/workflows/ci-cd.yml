@@ -340,8 +340,41 @@ jobs:
             echo "✅ HTTPS is working correctly!"
           else
             echo "❌ HTTPS verification failed"
-            echo "Checking application status..."
-            ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "sudo systemctl status homevault nginx --no-pager"
+            echo "Running comprehensive diagnostics..."
+            
+            # SSH into server and run diagnostics
+            ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+              echo "=== Application Status ==="
+              sudo systemctl status homevault --no-pager
+              
+              echo "=== Nginx Status ==="
+              sudo systemctl status nginx --no-pager
+              
+              echo "=== Nginx Configuration Test ==="
+              sudo nginx -t
+              
+              echo "=== Nginx Configuration ==="
+              sudo cat /etc/nginx/sites-available/default
+              
+              echo "=== Port Listening Status ==="
+              sudo netstat -tlnp | grep -E ':(80|443|5000)'
+              
+              echo "=== SSL Certificate Status ==="
+              sudo certbot certificates 2>/dev/null || echo "Certbot not installed or no certificates found"
+              
+              echo "=== Firewall Status ==="
+              sudo ufw status
+              
+              echo "=== Local Health Check ==="
+              curl -f http://localhost:5000/health || echo "Local health check failed"
+              
+              echo "=== Nginx Error Logs ==="
+              sudo tail -n 20 /var/log/nginx/error.log
+              
+              echo "=== Application Logs ==="
+              sudo journalctl -u homevault -n 20 --no-pager
+            EOF
+            
             exit 1
           fi
 
