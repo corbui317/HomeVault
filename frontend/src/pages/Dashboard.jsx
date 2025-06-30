@@ -66,10 +66,6 @@ export default function Dashboard() {
   const selectedPhotosArray = useMemo(() => Array.from(selectedPhotos), [selectedPhotos]);
   const hasSelectedPhotos = useMemo(() => selectedPhotos.size > 0, [selectedPhotos]);
 
-  useEffect(() => {
-    loadFiles();
-  }, [loadFiles]);
-
   // Memoized loadFiles function
   const loadFiles = useCallback(async () => {
     const token = localStorage.getItem("token");
@@ -81,6 +77,24 @@ export default function Dashboard() {
       setFiles(data.files);
     }
   }, []);
+
+  // Memoized loadSharedWith function
+  const loadSharedWith = useCallback(async () => {
+    if (!selectedPhoto) return;
+    
+    const token = localStorage.getItem("token");
+    const res = await fetch(`/api/photos/${selectedPhoto.name}/shared-with`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setSharedWith(data.sharedWith || []);
+    }
+  }, [selectedPhoto]);
+
+  useEffect(() => {
+    loadFiles();
+  }, [loadFiles]);
 
   // Optimized toggle favorite function
   const toggleFavorite = useCallback(async (photo) => {
@@ -257,19 +271,6 @@ export default function Dashboard() {
     setShareError("");
     setSharedWith([]);
   }, []);
-
-  const loadSharedWith = useCallback(async () => {
-    if (!selectedPhoto) return;
-    
-    const token = localStorage.getItem("token");
-    const res = await fetch(`/api/photos/${selectedPhoto.name}/shared-with`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setSharedWith(data.sharedWith || []);
-    }
-  }, [selectedPhoto]);
 
   const handleShare = useCallback(async () => {
     if (!shareEmail.trim()) {
