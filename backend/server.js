@@ -40,6 +40,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Health check route (add here)
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 // Static uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
