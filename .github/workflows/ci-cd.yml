@@ -213,22 +213,44 @@ jobs:
 
     - name: Deploy to EC2
       run: |
-        # Create directory and set permissions on server
+        # Create directory structure in user's home directory first
         ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
-          sudo mkdir -p /opt/homevault
-          sudo chown deploy:deploy /opt/homevault
-          sudo mkdir -p /opt/homevault/uploads
-          sudo chown deploy:deploy /opt/homevault/uploads
-          sudo chmod 755 /opt/homevault/uploads
+          echo "Setting up deployment directories..."
+          
+          # Create directories in user's home directory
+          mkdir -p ~/homevault_temp
+          mkdir -p ~/homevault_temp/uploads
+          
+          echo "Directories created successfully!"
         EOF
         
-        # Copy files to server
+        # Copy files to temporary location in user's home
+        echo "Copying files to server..."
         rsync -avz --delete \
           --exclude 'node_modules' \
           --exclude '.git' \
           --exclude '.github' \
           --exclude '*.log' \
-          ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/homevault/
+          ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:~/homevault_temp/
+        
+        # Move to final location and set up application
+        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+          echo "Moving files to final location..."
+          
+          # Create final directory if it doesn't exist
+          sudo mkdir -p /opt/homevault
+          sudo chown deploy:deploy /opt/homevault
+          
+          # Move files from temp location
+          sudo rm -rf /opt/homevault/*
+          sudo mv ~/homevault_temp/* /opt/homevault/
+          sudo chown -R deploy:deploy /opt/homevault
+          
+          # Clean up temp directory
+          rm -rf ~/homevault_temp
+          
+          echo "Files moved successfully!"
+        EOF
         
         # Set environment variables and deploy
         ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
