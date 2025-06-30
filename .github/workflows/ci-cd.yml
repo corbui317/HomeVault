@@ -305,51 +305,54 @@ jobs:
           ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
             echo 'Setting up complete server configuration...'
             
-            # Give deploy user full sudo access temporarily
-            echo 'deploy ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/deploy-temp
-            sudo chmod 440 /etc/sudoers.d/deploy-temp
-            
-            # Install certbot
-            sudo apt update
-            sudo apt install -y certbot python3-certbot-nginx
-            
-            # Configure nginx for the domain
-            sudo tee /etc/nginx/sites-available/${{ secrets.DOMAIN_NAME }} > /dev/null << 'NGINX_CONFIG'
-            server {
-                listen 80;
-                server_name ${{ secrets.DOMAIN_NAME }};
-                
-                location / {
-                    proxy_pass http://localhost:5000;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade \$http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host \$host;
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto \$scheme;
-                    proxy_cache_bypass \$http_upgrade;
-                }
-            }
-            NGINX_CONFIG
-            
-            # Enable the site and disable default
-            sudo ln -sf /etc/nginx/sites-available/${{ secrets.DOMAIN_NAME }} /etc/nginx/sites-enabled/
-            sudo rm -f /etc/nginx/sites-enabled/default
-            
-            # Test and reload nginx
-            sudo nginx -t
-            sudo systemctl reload nginx
-            
-            # Get SSL certificate
-            sudo certbot --nginx -d ${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email admin@${{ secrets.DOMAIN_NAME }}
-            
-            # Restrict sudo access back to specific commands
-            sudo rm /etc/sudoers.d/deploy-temp
-            echo 'deploy ALL=(ALL) NOPASSWD: /bin/systemctl, /bin/journalctl, /bin/ss, /bin/cat, /bin/tail, /bin/nginx, /bin/certbot, /bin/ufw' | sudo tee /etc/sudoers.d/deploy-permissions
-            sudo chmod 440 /etc/sudoers.d/deploy-permissions
-            
-            echo 'Complete server configuration finished!'
+            # Check if we have sudo access
+            if sudo -n true 2>/dev/null; then
+              echo 'Sudo access confirmed, proceeding with configuration...'
+              
+              # Install certbot
+              sudo apt update
+              sudo apt install -y certbot python3-certbot-nginx
+              
+              # Create nginx config file
+              sudo tee /etc/nginx/sites-available/${{ secrets.DOMAIN_NAME }} > /dev/null << 'NGINX_CONFIG'
+              server {
+                  listen 80;
+                  server_name ${{ secrets.DOMAIN_NAME }};
+                  
+                  location / {
+                      proxy_pass http://localhost:5000;
+                      proxy_http_version 1.1;
+                      proxy_set_header Upgrade \$http_upgrade;
+                      proxy_set_header Connection 'upgrade';
+                      proxy_set_header Host \$host;
+                      proxy_set_header X-Real-IP \$remote_addr;
+                      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto \$scheme;
+                      proxy_cache_bypass \$http_upgrade;
+                  }
+              }
+              NGINX_CONFIG
+              
+              # Enable the site and disable default
+              sudo ln -sf /etc/nginx/sites-available/${{ secrets.DOMAIN_NAME }} /etc/nginx/sites-enabled/
+              sudo rm -f /etc/nginx/sites-enabled/default
+              
+              # Test and reload nginx
+              sudo nginx -t
+              sudo systemctl reload nginx
+              
+              # Get SSL certificate
+              sudo certbot --nginx -d ${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email admin@${{ secrets.DOMAIN_NAME }}
+              
+              echo 'Complete server configuration finished!'
+            else
+              echo 'No sudo access available. Manual configuration required.'
+              echo 'Please run these commands on the server as root:'
+              echo '1. usermod -a -G sudo deploy'
+              echo '2. echo \"deploy ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers'
+              echo '3. Then re-run this deployment.'
+              exit 1
+            fi
           "
 
       - name: Set environment variables and deploy
