@@ -8,7 +8,10 @@ const bcrypt = require("bcryptjs");
 const path = require("path");
 
 // Initialize Firebase Admin SDK
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+const fs = require("fs");
+const serviceAccount = JSON.parse(
+  fs.readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH, "utf8")
+);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -41,8 +44,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Health check route (add this before any static or API routes)
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 // Static uploads folder
