@@ -5,6 +5,7 @@ A secure photo storage and sharing application with user-specific access control
 ## Features
 
 ### Photo Management
+
 - Upload and store photos securely
 - Organize photos into albums
 - Mark photos as favorites
@@ -12,12 +13,14 @@ A secure photo storage and sharing application with user-specific access control
 - Bulk operations (select multiple photos)
 
 ### User Access Control
+
 - **User-specific photo access**: Users can only view photos they have uploaded
 - **Photo sharing**: Share photos with other users via email
 - **Access validation**: All photo operations validate user permissions
 - **Ownership indicators**: Clear visual indicators for owned vs shared photos
 
 ### Sharing System
+
 - Share photos with specific users by email address
 - View currently shared photos and recipients
 - Unshare photos from specific users
@@ -25,6 +28,7 @@ A secure photo storage and sharing application with user-specific access control
 - Shared users can view, favorite, and trash shared photos. Sharing permissions remain with the original owner
 
 ### Security
+
 - Firebase authentication integration
 - JWT token-based API authentication
 - User-specific file access control
@@ -33,6 +37,7 @@ A secure photo storage and sharing application with user-specific access control
 ## API Endpoints
 
 ### Photos
+
 - `GET /api/photos` - Get user's photos (owned + shared)
 - `GET /api/photos/:filename` - Get specific photo (with access control)
 - `POST /api/photos/upload` - Upload new photo
@@ -40,6 +45,7 @@ A secure photo storage and sharing application with user-specific access control
 - `DELETE /api/photos/:filename` - Move photo to trash
 
 ### Sharing
+
 - `POST /api/photos/:filename/share` - Share photo with email
 - `DELETE /api/photos/:filename/share/:email` - Unshare photo from email
 - `GET /api/photos/:filename/shared-with` - Get list of users photo is shared with
@@ -47,17 +53,20 @@ A secure photo storage and sharing application with user-specific access control
 - `GET /api/photos/shared/with-me` - Get photos shared with current user
 
 ### Albums
+
 - `GET /api/albums` - Get user's albums
 - `POST /api/albums/add` - Add photos to album
 - `DELETE /api/albums/:albumName` - Delete album
 
 ### Authentication
+
 - `POST /api/auth/login` - User login
 - `POST /api/auth/register` - User registration
 
 ## Database Models
 
 ### Photo
+
 ```javascript
 {
   filename: String,           // Unique filename
@@ -75,6 +84,7 @@ A secure photo storage and sharing application with user-specific access control
 ```
 
 ### Share
+
 ```javascript
 {
   photoId: ObjectId,          // Reference to Photo
@@ -210,3 +220,4 @@ For more details, see the code comments and documentation in each folder.
 - No direct file system access without authentication
 - User-specific trash and favorites tracking
 
+## changes
