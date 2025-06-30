@@ -91,7 +91,7 @@ jobs:
     - name: Build frontend
       run: |
         cd frontend
-        npm run build
+        NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -211,13 +211,14 @@ jobs:
         # Show SSH configuration
         ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "whoami && pwd"
 
-    - name: Deploy to Linode
+    - name: Deploy to EC2
       run: |
         # Copy files to server
         rsync -avz --delete \
           --exclude 'node_modules' \
           --exclude '.git' \
           --exclude '.github' \
+          --exclude '*.log' \
           ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/homevault/
         
         # Set environment variables and deploy
@@ -229,15 +230,12 @@ jobs:
           export PORT=5000
           
           # Install dependencies
-          npm install --only=production
-          cd backend && npm install --only=production
-          cd ../frontend && npm install --only=production
+          npm install --omit=dev
+          cd backend && npm install --omit=dev
+          cd ../frontend && npm install --omit=dev
           cd ..
           
-          # Build frontend
-          cd frontend && npm run build && cd ..
-          
-          # Create uploads directory
+          # Create uploads directory if it doesn't exist
           mkdir -p uploads
           chmod 755 uploads
           
@@ -245,31 +243,39 @@ jobs:
           sudo systemctl restart homevault
           
           # Check if application is running
-          sleep 5
+          sleep 10
           if ! curl -f http://localhost:5000/health > /dev/null 2>&1; then
             echo "Application failed to start"
+            sudo journalctl -u homevault -n 20 --no-pager
             exit 1
           fi
           
           echo "Deployment completed successfully!"
         EOF
 
-    - name: Setup SSL Certificate
+    - name: Setup SSL Certificate (if needed)
       run: |
         ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
-          # Stop nginx temporarily
-          sudo systemctl stop nginx
-          
-          # Get SSL certificate
-          sudo certbot certonly --standalone \
-            --email your-email@example.com \
-            --agree-tos \
-            --no-eff-email \
-            -d ${{ secrets.DOMAIN_NAME }} \
-            -d www.${{ secrets.DOMAIN_NAME }}
-          
-          # Start nginx
-          sudo systemctl start nginx
+          # Check if SSL certificate exists
+          if [ ! -f /etc/letsencrypt/live/${{ secrets.DOMAIN_NAME }}/fullchain.pem ]; then
+            echo "Setting up SSL certificate..."
+            
+            # Stop nginx temporarily
+            sudo systemctl stop nginx
+            
+            # Get SSL certificate
+            sudo certbot certonly --standalone \
+              --email your-email@example.com \
+              --agree-tos \
+              --no-eff-email \
+              -d ${{ secrets.DOMAIN_NAME }} \
+              -d www.${{ secrets.DOMAIN_NAME }}
+            
+            # Start nginx
+            sudo systemctl start nginx
+          else
+            echo "SSL certificate already exists"
+          fi
           
           # Test nginx configuration
           sudo nginx -t
@@ -282,7 +288,7 @@ jobs:
 
     - name: Verify HTTPS
       run: |
-        # Wait for DNS propagation
+        # Wait for DNS propagation and services to stabilize
         sleep 30
         
         # Test HTTPS
@@ -290,6 +296,8 @@ jobs:
           echo "✅ HTTPS is working correctly!"
         else
           echo "❌ HTTPS verification failed"
+          echo "Checking application status..."
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "sudo systemctl status homevault nginx --no-pager"
           exit 1
         fi
 
