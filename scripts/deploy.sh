@@ -80,7 +80,7 @@ cd ..
 # Build frontend
 log "Building frontend..."
 cd frontend
-npm run build
+NODE_OPTIONS=--max_old_space_size=2048 npm run build
 cd ..
 
 # Create uploads directory
