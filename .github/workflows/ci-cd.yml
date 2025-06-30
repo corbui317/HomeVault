@@ -343,7 +343,7 @@ jobs:
             echo "Running comprehensive diagnostics..."
             
             # SSH into server and run diagnostics
-            ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+            ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'DIAGNOSTICS_EOF'
               echo "=== Application Status ==="
               sudo systemctl status homevault --no-pager
               
@@ -373,7 +373,7 @@ jobs:
               
               echo "=== Application Logs ==="
               sudo journalctl -u homevault -n 20 --no-pager
-            EOF
+            DIAGNOSTICS_EOF
             
             exit 1
           fi
