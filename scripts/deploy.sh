@@ -8,7 +8,7 @@ APP_NAME="homevault"
 DEPLOY_PATH="/opt/homevault"
 BACKUP_PATH="/opt/backups/homevault"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
+NODE_OPTIONS=--max_old_space_size=2048 npm run build
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
