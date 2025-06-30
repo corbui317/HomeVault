@@ -203,6 +203,14 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
+    - name: Test SSH Connection
+      run: |
+        # Test SSH connection
+        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo 'SSH connection successful'"
+        
+        # Show SSH configuration
+        ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "whoami && pwd"
+
     - name: Deploy to Linode
       run: |
         # Copy files to server
