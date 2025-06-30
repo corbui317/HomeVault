@@ -1,8 +1,7 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const auth = require("../middleware/auth");
-const Album = require("../models/Album");
-const Photo = require("../models/Photo");
+const auth = require('../middleware/auth');
+const Album = require('../models/Album');
 
 // Get all albums for the user
 router.get("/", auth, async (req, res) => {
