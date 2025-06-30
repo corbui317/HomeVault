@@ -9,15 +9,12 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Avatar,
-  LinearProgress,
   Divider,
 } from "@mui/material";
 import {
   Lock as LockIcon,
   Palette as PaletteIcon,
   Language as LanguageIcon,
-  Settings as SettingsIcon,
 } from "@mui/icons-material";
 
 const menuOptions = [

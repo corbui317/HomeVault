@@ -68,7 +68,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadFiles();
-  }, []);
+  }, [loadFiles]);
 
   // Memoized loadFiles function
   const loadFiles = useCallback(async () => {
@@ -249,7 +249,7 @@ export default function Dashboard() {
     setShareEmail("");
     setShareError("");
     loadSharedWith();
-  }, []);
+  }, [loadSharedWith]);
 
   const handleCloseShareModal = useCallback(() => {
     setShareModalOpen(false);
