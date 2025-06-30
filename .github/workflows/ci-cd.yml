@@ -283,6 +283,23 @@ jobs:
           mkdir -p uploads
           chmod 755 uploads
           
+          # Create backend .env file
+          echo "Creating backend .env file..."
+          echo "MONGODB_URI=mongodb://homevault:YOUR_ACTUAL_MONGODB_PASSWORD@localhost:27017/homevault" > backend/.env
+          echo "FIREBASE_SERVICE_ACCOUNT_KEY=${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" >> backend/.env
+          echo "CLIENT_ORIGIN=https://${{ secrets.DOMAIN_NAME }}" >> backend/.env
+          echo "PORT=5000" >> backend/.env
+          
+          # Create frontend .env file
+          echo "Creating frontend .env file..."
+          echo "REACT_APP_API_URL=https://${{ secrets.DOMAIN_NAME }}/api" > frontend/.env
+          echo "REACT_APP_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> frontend/.env
+          echo "REACT_APP_FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
+          echo "REACT_APP_FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> frontend/.env
+          echo "REACT_APP_FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
+          echo "REACT_APP_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
+          echo "REACT_APP_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> frontend/.env
+          
           echo "Restarting application..."
           sudo systemctl restart homevault
           
