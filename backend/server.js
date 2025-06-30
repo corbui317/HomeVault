@@ -40,7 +40,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Health check route (add here)
+// Health check route (add this before any static or API routes)
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
