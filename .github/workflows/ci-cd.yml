@@ -260,62 +260,43 @@ jobs:
         run: |
           ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
             cd /opt/homevault
+            
+            # Set environment variables
             export NODE_ENV=production
             export MONGO_URI=mongodb://homevault:${{ secrets.MONGODB_PASSWORD }}@localhost:27017/homevault
             export CLIENT_ORIGIN=https://${{ secrets.DOMAIN_NAME }}
             export PORT=5000
             
-            echo "Installing root dependencies..."
-            npm install --omit=dev --no-audit --no-fund
-            
-            echo "Installing backend dependencies..."
-            cd backend && npm install --omit=dev --no-audit --no-fund && cd ..
-            
-            echo "Skipping frontend npm install (using pre-built files)..."
-            
-            # Force correct Express version by cleaning and reinstalling
-            echo "Ensuring correct Express version..."
-            rm -rf node_modules backend/node_modules
-            npm install --omit=dev --no-audit --no-fund
-            cd backend && npm install --omit=dev --no-audit --no-fund && cd ..
-            
-            # Verify Express version
-            echo "Express version check:"
-            npm list express
-            cd backend && npm list express && cd ..
+            # Ensure proper permissions and clean up any existing node_modules
+            echo "Ensuring proper permissions and cleaning up..."
+            sudo chown -R deploy:deploy /opt/homevault
+            sudo rm -rf node_modules backend/node_modules
             
             # Create uploads directory if it doesn't exist
             mkdir -p uploads
             chmod 755 uploads
-
+            
+            # Set up environment file
             echo "MONGODB_URI=mongodb://homevault:${{ secrets.MONGODB_PASSWORD }}@localhost:27017/homevault" > backend/.env
             echo "FIREBASE_SERVICE_ACCOUNT_KEY_PATH=/opt/homevault/backend/firebase-service-account.json" >> backend/.env
             echo "CLIENT_ORIGIN=https://${{ secrets.DOMAIN_NAME }}" >> backend/.env
             echo "PORT=5000" >> backend/.env
             
+            # Install root dependencies
             echo "Installing root dependencies..."
             npm install --omit=dev --no-audit --no-fund
             
+            # Install backend dependencies
             echo "Installing backend dependencies..."
             cd backend && npm install --omit=dev --no-audit --no-fund && cd ..
             
-            echo "Skipping frontend npm install (using pre-built files)..."
-            
-            # Force correct Express version by cleaning and reinstalling
-            echo "Ensuring correct Express version..."
-            rm -rf node_modules backend/node_modules
-            npm install --omit=dev --no-audit --no-fund
-            cd backend && npm install --omit=dev --no-audit --no-fund && cd ..
-            
-            # Verify Express version
-            echo "Express version check:"
+            # Verify installations
+            echo "Verifying installations..."
+            echo "Root Express version:"
             npm list express
+            echo "Backend Express version:"
             cd backend && npm list express && cd ..
             
-            # Create uploads directory if it doesn't exist
-            mkdir -p uploads
-            chmod 755 uploads
-
             echo "Restarting application..."
             sudo systemctl restart homevault
             
@@ -350,39 +331,6 @@ jobs:
             done
             
             echo "Deployment completed successfully!"
-          EOF
-
-      - name: Setup SSL Certificate (if needed)
-        run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
-            # Check if SSL certificate exists
-            if [ ! -f /etc/letsencrypt/live/${{ secrets.DOMAIN_NAME }}/fullchain.pem ]; then
-              echo "Setting up SSL certificate..."
-              
-              # Stop nginx temporarily
-              sudo systemctl stop nginx
-              
-              # Get SSL certificate
-              sudo certbot certonly --standalone \
-                --email your-email@example.com \
-                --agree-tos \
-                --no-eff-email \
-                -d ${{ secrets.DOMAIN_NAME }} \
-                -d www.${{ secrets.DOMAIN_NAME }}
-              
-              # Start nginx
-              sudo systemctl start nginx
-            else
-              echo "SSL certificate already exists"
-            fi
-            
-            # Test nginx configuration
-            sudo nginx -t
-            
-            # Reload nginx
-            sudo systemctl reload nginx
-            
-            echo "SSL certificate setup completed!"
           EOF
 
       - name: Verify HTTPS
