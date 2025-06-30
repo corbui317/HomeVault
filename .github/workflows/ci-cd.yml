@@ -213,6 +213,15 @@ jobs:
 
     - name: Deploy to EC2
       run: |
+        # Create directory and set permissions on server
+        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+          sudo mkdir -p /opt/homevault
+          sudo chown deploy:deploy /opt/homevault
+          sudo mkdir -p /opt/homevault/uploads
+          sudo chown deploy:deploy /opt/homevault/uploads
+          sudo chmod 755 /opt/homevault/uploads
+        EOF
+        
         # Copy files to server
         rsync -avz --delete \
           --exclude 'node_modules' \
