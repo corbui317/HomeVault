@@ -211,6 +211,24 @@ jobs:
           # Show SSH configuration
           ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "whoami && pwd"
 
+      - name: Configure Server Permissions
+        run: |
+          # Configure sudoers for the deploy user
+          ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+            echo 'Configuring server permissions...'
+            
+            # Add deploy user to systemd-journal group for log access
+            sudo usermod -a -G systemd-journal deploy
+            
+            # Configure sudoers for systemctl and journalctl commands
+            echo 'deploy ALL=(ALL) NOPASSWD: /bin/systemctl, /bin/journalctl, /bin/ss, /bin/cat, /bin/tail, /bin/nginx, /bin/certbot, /bin/ufw' | sudo tee /etc/sudoers.d/deploy-permissions
+            
+            # Set proper permissions
+            sudo chmod 440 /etc/sudoers.d/deploy-permissions
+            
+            echo 'Server permissions configured successfully!'
+          "
+
       - name: Deploy to EC2
         run: |
           # Create directory structure in user's home directory first
@@ -253,6 +271,30 @@ jobs:
       - name: Write Firebase service account JSON to server
         run: |
           ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 }}' | base64 -d > /opt/homevault/backend/firebase-service-account.json && chmod 600 /opt/homevault/backend/firebase-service-account.json"
+
+      - name: Setup SSL Certificate
+        run: |
+          ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+            echo 'Setting up SSL certificate...'
+            
+            # Install certbot if not installed
+            if ! command -v certbot &> /dev/null; then
+              echo 'Installing certbot...'
+              sudo apt update
+              sudo apt install -y certbot python3-certbot-nginx
+            fi
+            
+            # Check if certificate already exists
+            if sudo certbot certificates | grep -q '${{ secrets.DOMAIN_NAME }}'; then
+              echo 'SSL certificate already exists, renewing...'
+              sudo certbot renew --quiet
+            else
+              echo 'Getting new SSL certificate...'
+              sudo certbot --nginx -d ${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email admin@${{ secrets.DOMAIN_NAME }}
+            fi
+            
+            echo 'SSL certificate setup completed!'
+          "
 
       - name: Set environment variables and deploy
         run: |
@@ -357,7 +399,7 @@ jobs:
               sudo cat /etc/nginx/sites-available/default
               
               echo '=== Port Listening Status ==='
-              sudo netstat -tlnp | grep -E ':(80|443|5000)'
+              sudo ss -tlnp | grep -E ':(80|443|5000)'
               
               echo '=== SSL Certificate Status ==='
               sudo certbot certificates 2>/dev/null || echo 'Certbot not installed or no certificates found'
