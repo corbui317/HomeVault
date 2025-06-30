@@ -214,7 +214,7 @@ jobs:
     - name: Deploy to EC2
       run: |
         # Create directory structure in user's home directory first
-        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+        ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           echo "Setting up deployment directories..."
           
           # Create directories in user's home directory
@@ -226,7 +226,7 @@ jobs:
         
         # Copy files to temporary location in user's home
         echo "Copying files to server..."
-        rsync -avz --delete \
+        rsync -avz --delete --timeout=300 \
           --exclude 'node_modules' \
           --exclude '.git' \
           --exclude '.github' \
@@ -234,7 +234,7 @@ jobs:
           ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:~/homevault_temp/
         
         # Move to final location and set up application
-        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+        ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           echo "Moving files to final location..."
           
           # Create final directory if it doesn't exist
@@ -253,33 +253,48 @@ jobs:
         EOF
         
         # Set environment variables and deploy
-        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+        ssh -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           cd /opt/homevault
           export NODE_ENV=production
           export MONGO_URI=mongodb://homevault:YOUR_SECURE_PASSWORD@localhost:27017/homevault
           export CLIENT_ORIGIN=https://${{ secrets.DOMAIN_NAME }}
           export PORT=5000
           
-          # Install dependencies
-          npm install --omit=dev
-          cd backend && npm install --omit=dev
-          cd ../frontend && npm install --omit=dev
-          cd ..
+          echo "Installing root dependencies..."
+          npm install --omit=dev --no-audit --no-fund
+          
+          echo "Installing backend dependencies..."
+          cd backend && npm install --omit=dev --no-audit --no-fund && cd ..
+          
+          echo "Skipping frontend npm install (using pre-built files)..."
           
           # Create uploads directory if it doesn't exist
           mkdir -p uploads
           chmod 755 uploads
           
-          # Restart application
+          echo "Restarting application..."
           sudo systemctl restart homevault
           
           # Check if application is running
-          sleep 10
-          if ! curl -f http://localhost:5000/health > /dev/null 2>&1; then
-            echo "Application failed to start"
-            sudo journalctl -u homevault -n 20 --no-pager
-            exit 1
-          fi
+          echo "Waiting for application to start..."
+          sleep 15
+          
+          # Try multiple health checks
+          for i in {1..5}; do
+            echo "Health check attempt $i..."
+            if curl -f http://localhost:5000/health > /dev/null 2>&1; then
+              echo "✅ Application is running successfully!"
+              break
+            else
+              echo "❌ Health check failed, attempt $i"
+              if [ $i -eq 5 ]; then
+                echo "Application failed to start after 5 attempts"
+                sudo journalctl -u homevault -n 30 --no-pager
+                exit 1
+              fi
+              sleep 5
+            fi
+          done
           
           echo "Deployment completed successfully!"
         EOF
