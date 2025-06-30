@@ -43,7 +43,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Health check route (add this before any static or API routes)
+// Health check route (add this before any static or API routes) test
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
@@ -61,3 +61,4 @@ app.use("/api/albums", require("./routes/albums"));
 // independently. Default to 5000 if neither is set.
 const PORT = process.env.BACKEND_PORT || process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// trigger redeploy
