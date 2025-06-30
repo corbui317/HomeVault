@@ -10,4 +10,4 @@ frontend/.env
 frontend/src/firebase.js
 uploads/
 !uploads/.gitkeep
-backend/homevault-89067-firebase-adminsdk-fbsvc-aefaf8b81e.json
+backend/firebase-service-account.json
